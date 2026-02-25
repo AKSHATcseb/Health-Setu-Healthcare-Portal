@@ -31,12 +31,12 @@ function App() {
     <>
       <Routes>
         <Route path='/' element={<Home />} />
-        <Route path="/login" element={<LoginForm />} />
+        <Route path="/#/login" element={<LoginForm />} />
         <Route path="/roleselector" element={<SelectRolePage />} />
-        <Route path="/register" element={<Register />} />
+        <Route path="/#/register" element={<Register />} />
         <Route path="/patient/details" element={<PatientDetailsForm />} />
         <Route path="/center/details" element={<CenterDetailsForm />} />
-        <Route path='/patient/dashboard' element={<PatientDashboard />} />
+        <Route path='/#/patient/dashboard' element={<PatientDashboard />} />
         <Route path='/center/dashboard' element={<CenterDashboard />} />
         <Route path='/patient/myappointments' element={<MyAppointments />} />
         <Route path='/patient/bookappointment' element={<NewBookingPage />} />
