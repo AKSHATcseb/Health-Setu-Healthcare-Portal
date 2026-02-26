@@ -1,95 +1,133 @@
-import { useEffect, useState } from "react";
-import EmergencyContactCard from "../../components/patientProfile/EmergencyContactCard";
-import MedicalInfoCard from "../../components/patientProfile/MedicalInfoCard";
-import ProfileCard from "../../components/patientProfile/ProfileCard";
-import ProfileHeader from "../../components/patientProfile/ProfileHeader";
-import { getMe } from "../../services/userApi";
-import { useNavigate } from 'react-router-dom';
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import ProfilePageHeader from "../../components/patientProfile/ProfilePageHeader";
+import ProfileStats from "../../components/patientProfile/ProfileStats";
+import PersonalInfoSection from "../../components/patientProfile/PersonalInfoSection";
+import MedicalInfoSection from "../../components/patientProfile/MedicalInfoSection";
+import LocationInfoSection from "../../components/patientProfile/LocationInfoSection";
+import EmergencyContactSection from "../../components/patientProfile/EmergencyContactSection";
+import MedicalHistorySection from "../../components/patientProfile/MedicalHistorySection";
+import ProfileActionButtons from "../../components/patientProfile/ProfileActionButtons";
 
 export default function PatientProfile() {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-  // useEffect(() => {
-  //   const fetchProfile = async () => {
-  //     try {
-  //       const res = await getMe();
-  //       setUser(res.data);
-  //     } catch (err) {
-  //       console.error("Profile fetch error:", err);
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   };
+  // Sample patient data - Replace with actual API data
+  const patientData = {
+    personalInfo: {
+      fullName: "John David Martinez",
+      email: "john.martinez@email.com",
+      mobileNumber: "+1 (555) 123-4567",
+      dateOfBirth: "March 15, 1980",
+    },
+    medicalInfo: {
+      age: 45,
+      gender: "Male",
+      bloodGroup: "O+",
+      dialysisStatus: "Regular (3x per week)",
+      allergies: "Penicillin, Latex",
+    },
+    locationInfo: {
+      address: "123 Medical Plaza, Healthcare District, City, State 12345",
+      latitude: 40.7128,
+      longitude: -74.006,
+    },
+    emergencyContact: {
+      name: "Sarah Martinez",
+      relationship: "Spouse",
+      phone: "+1 (555) 987-6543",
+    },
+    medicalHistory: [
+      {
+        condition: "Type 2 Diabetes",
+        date: "2015",
+        description: "Diagnosed with Type 2 Diabetes. Currently managed with medication.",
+      },
+      {
+        condition: "Chronic Kidney Disease",
+        date: "2018",
+        description: "Stage 5 CKD. Started dialysis treatment in 2020.",
+      },
+      {
+        condition: "Hypertension",
+        date: "2010",
+        description: "Managed with antihypertensive medications.",
+      },
+    ],
+    stats: {
+      totalAppointments: 48,
+      completed: 45,
+      upcoming: 2,
+      pending: 1,
+    },
+  };
 
-  //   fetchProfile();
-  // }, []);
+  const handleEdit = () => {
+    console.log("Edit profile");
+    navigate("/patient/detailsForm");
+  };
 
-  useEffect(() => {
-    const fetchProfile = async () => {
-      try {
-        const res = await getMe();
-        setUser(res.data);
-      } catch (err) {
-        console.error("Profile fetch error:", err);
-        // Check if the error indicates an authentication issue
-        if (err.message === "Not logged in" || err.response?.status === 401) {
-          navigate('/login'); // Redirect to login page
-        }
-        // Handle other errors as needed
-      } finally {
-        setLoading(false);
-      }
-    };
+  const handleDownload = () => {
+    console.log("Download records");
+    // Implement download functionality
+    alert("Medical records download feature will be available soon!");
+  };
 
-    fetchProfile();
-  }, [navigate]);
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center text-gray-500">
-        Loading profile...
-      </div>
-    );
-  }
-
-  if (!user) {
-    return (
-      <div className="min-h-screen flex items-center justify-center text-red-500">
-        Profile not found
-      </div>
-    );
-  }
+  const handleLogout = () => {
+    if (window.confirm("Are you sure you want to logout?")) {
+      console.log("Logout");
+      navigate("/login");
+    }
+  };
 
   return (
-    <div className="min-h-screen bg-slate-100 px-4 md:px-10 py-10">
-
-      <ProfileHeader
-        patientName={user.name}
+    <div className="min-h-screen bg-linear-to-br from-blue-50 via-white to-teal-50">
+      <ProfilePageHeader
+        patientName={patientData.personalInfo.fullName}
+        onEdit={handleEdit}
       />
 
+      <div className="w-full px-4 sm:px-6 lg:px-8 py-8">
+        <div className="max-w-6xl mx-auto">
+          {/* Statistics */}
+          <ProfileStats stats={patientData.stats} />
 
-      <div className="mt-10 grid lg:grid-cols-3 gap-8">
+          {/* Main Content - Two Column Layout */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Left Column */}
+            <div className="lg:col-span-2 space-y-6">
+              {/* Personal Information */}
+              <PersonalInfoSection personalInfo={patientData.personalInfo} />
 
-        {/* LEFT */}
-        <ProfileCard email={user.email} phone={user.phone} age={user.age} gender={user.gender} weight={user.weight} address={user.address} />
+              {/* Medical Information */}
+              <MedicalInfoSection medicalInfo={patientData.medicalInfo} />
 
-        {/* RIGHT */}
-        <MedicalInfoCard
-          bloodGroup={user?.medicalInfo?.bloodGroup}
-          dialysisType={user?.medicalInfo?.dialysisType}
-        />
+              {/* Location Information */}
+              <LocationInfoSection locationInfo={patientData.locationInfo} />
+            </div>
 
-        <EmergencyContactCard
-          emergencyName={user?.emergencyContact?.name}
-          emergencyRelation={user?.emergencyContact?.relation}
-          emergencyPhone={user?.emergencyContact?.phone}
-        />
+            {/* Right Column */}
+            <div className="space-y-6">
+              {/* Emergency Contact */}
+              <EmergencyContactSection
+                emergencyContact={patientData.emergencyContact}
+              />
 
+              {/* Action Buttons */}
+              <ProfileActionButtons
+                onEdit={handleEdit}
+                onDownload={handleDownload}
+                onLogout={handleLogout}
+              />
+            </div>
+          </div>
 
+          {/* Medical History - Full Width */}
+          <div className="mt-6">
+            <MedicalHistorySection medicalHistory={patientData.medicalHistory} />
+          </div>
+        </div>
       </div>
     </div>
   );
-
 }
