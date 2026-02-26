@@ -1,151 +1,104 @@
 import React from "react";
-import { motion } from "framer-motion";
-import { useNavigate } from "react-router-dom";
-import { cancelAppointment } from "../../services/appointmentApi";
+import { Calendar, Clock, MapPin, User, ChevronRight } from "lucide-react";
+import StatusBadge from "./StatusBadge";
 
+export default function AppointmentCard({ appointment, onEdit, onCancel, onView }) {
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+    });
+  };
 
-const statusStyles = {
-  reserved: {
-    label: "Upcoming",
-    badge: "bg-teal-100 text-teal-700",
-    ring: "ring-teal-200",
-  },
-  active: {
-    label: "Ongoing",
-    badge: "bg-blue-100 text-blue-700",
-    ring: "ring-blue-200",
-  },
-  completed: {
-    label: "Completed",
-    badge: "bg-gray-100 text-gray-700",
-    ring: "ring-gray-200",
-  },
-  cancelled: {
-    label: "Cancelled",
-    badge: "bg-red-100 text-red-700",
-    ring: "ring-red-200",
-  },
-};
+  const formatFullDate = (dateString) => {
+    return new Date(dateString).toLocaleDateString("en-US", {
+      weekday: "short",
+      month: "short",
+      day: "numeric",
+    });
+  };
 
-export default function AppointmentCard({ appointment }) {
-
-  const navigate = useNavigate();
-
-  const s = statusStyles[appointment.status];
-
-  const hospital = appointment.hospitalId;
-
-  const date = new Date(appointment.appointmentDate).toLocaleDateString();
+  const getCardBorderColor = (status) => {
+    const colors = {
+      pending: "border-yellow-300 hover:border-yellow-400",
+      upcoming: "border-blue-300 hover:border-blue-400",
+      completed: "border-green-300 hover:border-green-400",
+      cancelled: "border-red-300 hover:border-red-400",
+    };
+    return colors[status] || colors.pending;
+  };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4 }}
-    >
-      <div
-        className={`
-          my-5 bg-white rounded-3xl p-6
-          flex flex-col lg:flex-row gap-6
-          shadow-md ring-1 ${s.ring}
-          hover:shadow-xl transition
-        `}
-      >
-        {/* LEFT */}
+    <div className={`bg-white rounded-2xl border-2 ${getCardBorderColor(appointment.status)} p-4 shadow-md hover:shadow-lg transition-all duration-300`}>
+      <div className="flex flex-col sm:flex-row gap-4">
+        {/* Left Section - Hospital & Status */}
         <div className="flex-1">
-
-          {/* STATUS */}
-          <div className="flex gap-3 mb-3">
-            <span className={`px-4 py-1 rounded-full text-sm font-semibold ${s.badge}`}>
-              {s.label}
-            </span>
-
-            {appointment.paymentStatus === "pending" && (
-              <span className="px-3 py-1 rounded-full text-sm bg-amber-100 text-amber-700">
-                Payment Pending
-              </span>
-            )}
+          <div className="mb-3">
+            <h3 className="text-sm font-bold text-gray-900 truncate">
+              {appointment.hospitalName}
+            </h3>
+            <p className="text-xs text-gray-500 truncate">
+              {appointment.hospitalAddress}
+            </p>
           </div>
+          <StatusBadge status={appointment.status} />
+        </div>
 
-          {/* HOSPITAL */}
-          <h2 className="text-xl font-bold text-gray-800">
-            {hospital.name}
-          </h2>
-
-          {/* DETAILS */}
-          <div className="mt-4 space-y-2 text-gray-600 text-sm">
-
-            <div>📅 {date}</div>
-
-            <div>
-              ⏰ {appointment.startTime} - {appointment.endTime}
-            </div>
-
-            <div>
-              📍 <span>{hospital.address.street}</span>
-              <span>{hospital.address.city}</span>
-              <span>{hospital.address.state}</span>
-              <span>{hospital.address.pincode}</span>
-            </div>
-
-            <div>
-              💰 ₹{appointment.amount}
+        {/* Middle Section - Details */}
+        <div className="grid grid-cols-3 gap-3 sm:gap-4 sm:items-center">
+          {/* Date */}
+          <div className="flex items-center gap-2">
+            <Calendar size={16} className="text-blue-600 flex-shrink-0" />
+            <div className="min-w-0">
+              <p className="text-xs text-gray-500">Date</p>
+              <p className="text-xs font-bold text-gray-900 truncate">
+                {formatFullDate(appointment.date)}
+              </p>
             </div>
           </div>
 
-          {/* ACTIONS */}
-          <div className="mt-6 flex gap-3 justify-end">
+          {/* Time */}
+          <div className="flex items-center gap-2">
+            <Clock size={16} className="text-green-600 flex-shrink-0" />
+            <div className="min-w-0">
+              <p className="text-xs text-gray-500">Time</p>
+              <p className="text-xs font-bold text-gray-900">
+                {appointment.timeSlot.split(" - ")[0]}
+              </p>
+            </div>
+          </div>
 
-            {/* {appointment.paymentStatus === "pending" && (
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => navigate(`/appointment/${appointment._id}/pay`)}
-                className="px-6 py-2 rounded-full bg-teal-600 text-white"
-              >
-                Pay Now
-              </motion.button>
-            )} */}
-
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => navigate(`/center/${hospital._id}`)}
-              className="px-6 py-2 rounded-full border border-teal-600 text-teal-600"
-            >
-              View Center
-            </motion.button>
-
-            {appointment.status === "reserved" && (
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={async () => {
-                  try {
-                    await cancelAppointment(appointment._id);
-                    window.location.reload(); // quick refresh
-                  } catch (err) {
-                    alert("Failed to cancel appointment");
-                  }
-                }}
-                className="px-6 py-2 rounded-full border border-red-500 text-red-600"
-              >
-                Cancel
-              </motion.button>
-            )}
-
+          {/* Doctor */}
+          <div className="flex items-center gap-2">
+            <User size={16} className="text-purple-600 flex-shrink-0" />
+            <div className="min-w-0">
+              <p className="text-xs text-gray-500">Doctor</p>
+              <p className="text-xs font-bold text-gray-900 truncate">
+                {appointment.doctorName.split(" ")[0]}
+              </p>
+            </div>
           </div>
         </div>
 
-        {/* MAP */}
-        {/* <div className="w-full lg:w-80 h-48 rounded-2xl overflow-hidden border">
-          <iframe
-            title="map"
-            src={`https://maps.google.com/maps?q=${encodeURIComponent(hospital.location)}&z=15&output=embed`}
-            className="w-full h-full"
-          />
-        </div> */}
+        {/* Right Section - Actions */}
+        <div className="flex gap-2 justify-end sm:items-center">
+          {(appointment.status === "pending" || appointment.status === "upcoming") && (
+            <button
+              onClick={() => onCancel(appointment.id)}
+              className="px-3 py-1.5 text-xs font-semibold text-red-700 bg-red-50 hover:bg-red-100 border-2 border-red-300 rounded-lg transition-all duration-300 hover:scale-105 whitespace-nowrap"
+            >
+              Cancel
+            </button>
+          )}
+          <button
+            onClick={() => onView(appointment.id)}
+            className="px-3 py-1.5 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-all duration-300 hover:scale-105 flex items-center gap-1 whitespace-nowrap"
+          >
+            Details
+            <ChevronRight size={14} />
+          </button>
+        </div>
       </div>
-    </motion.div>
+    </div>
   );
 }

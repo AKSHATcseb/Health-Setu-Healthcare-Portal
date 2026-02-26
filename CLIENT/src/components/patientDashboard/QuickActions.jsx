@@ -28,7 +28,7 @@ const actions = [
     icon: FileText,
     bgColor: "from-green-600 to-green-500",
     borderColor: "border-green-600",
-    link: "/patient/book-appointment",
+    link: "/patient/bookingpage",
   },
 ];
 
