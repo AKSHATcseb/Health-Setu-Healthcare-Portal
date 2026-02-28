@@ -1,297 +1,186 @@
-import { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import api from "../../services/api";
-import { auth } from "../../firebase";
-import LocationDetailsForm from "../../components/loginSignup/LocationDetailsForm";
+import ProfileHeader from "../../components/patientDetailsForm/ProfileHeader";
+import ProgressIndicator from "../../components/patientDetailsForm/ProgressIndicator";
+import PersonalDetailsForm from "../../components/patientDetailsForm/PersonalDetailsForm";
+import MedicalDetailsForm from "../../components/patientDetailsForm/MedicalDetailsForm";
+import LocationDetailsForm from "../../components/patientDetailsForm/LocationDetailsForm";
+import FormActions from "../../components/patientDetailsForm/FormActions";
 
-export default function EditProfile() {
+export default function CompleteProfile() {
   const navigate = useNavigate();
+  const [currentStep, setCurrentStep] = useState(1);
+  const totalSteps = 3;
+  const [isLoading, setIsLoading] = useState(false);
 
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-
-  // ✅ Only profile fields (name already saved in /auth/login)
   const [formData, setFormData] = useState({
-    phone: "",
+    // Personal Details
+    fullName: "",
+    mobileNumber: "",
+    email: "",
+    // Medical Details
     age: "",
-    weight: "",
     gender: "",
-    dialysisType: "",
     bloodGroup: "",
-    emergencyName: "",
-    emergencyRelation: "",
-    emergencyPhone: "",
-    address: null,
-    location: null,
+    // Location Details
+    address: "",
+    latitude: null,
+    longitude: null,
   });
 
-  // ✅ Handle Inputs
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+  const [errors, setErrors] = useState({
+    fullName: "",
+    mobileNumber: "",
+    email: "",
+    age: "",
+    address: "",
+  });
+
+  // Validation functions
+  const isStep1Valid = () => {
+    return (
+      formData.fullName &&
+      formData.mobileNumber &&
+      formData.email &&
+      !errors.fullName &&
+      !errors.mobileNumber &&
+      !errors.email
+    );
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const isStep2Valid = () => {
+    return formData.age && formData.gender && formData.bloodGroup && !errors.age;
+  };
 
-    try {
-      setLoading(true);
-      setError(null);
+  const isStep3Valid = () => {
+    return formData.address && !errors.address;
+  };
 
-      const user = auth.currentUser;
+  const isCurrentStepValid = () => {
+    if (currentStep === 1) return isStep1Valid();
+    if (currentStep === 2) return isStep2Valid();
+    if (currentStep === 3) return isStep3Valid();
+    return false;
+  };
 
-      if (!user) {
-        setError("User not logged in.");
-        return;
-      }
+  const handleNext = async () => {
+    if (!isCurrentStepValid()) return;
 
-      // ✅ Refresh verification status
-      await user.reload();
-
-      if (!user.emailVerified) {
-        setError("Please verify your email before registering center.");
-        return;
-      }
-
-      // ✅ Location required
-      if (!formData.location) {
-        setError("Please select your current GPS location.");
-        return;
-      }
-
-      const token = await user.getIdToken(true);
-
-      // ✅ FINAL Correct Payload for patient Schema
-      const payload = {
-        phone: formData.phone,
-        age: formData.age,
-        weight: formData.weight,
-        gender: formData.gender,
-        dialysisType: formData.dialysisType,
-        bloodGroup: formData.bloodGroup,
-        emergencyName: formData.emergencyName,
-        emergencyRelation: formData.emergencyRelation,
-        emergencyPhone: formData.emergencyPhone,
-
-        // ✅ LocationDetailsForm provides both
-        address: formData.address,
-        location: formData.location,
-      };
-
-      console.log("✅ Sending Patient Payload:", payload);
-
-      // ✅ Correct API Endpoint
-      const res = await api.put(
-        "/api/users/me",
-        payload,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      alert("✅ patient Registered Successfully!");
-
-      navigate(`/patient/dashboard`, { replace: true });
-
-    } catch (err) {
-      setError(err.response?.data?.message || "patient registration failed.");
-    } finally {
-      setLoading(false);
+    if (currentStep < totalSteps) {
+      setCurrentStep(currentStep + 1);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } else {
+      // Submit form
+      await handleSubmit();
     }
   };
 
-  useEffect(() => {
-    const loadProfile = async () => {
-      try {
-        const res = await api.get(
-          "/api/users/me",
-          {
-            headers: {
-              Authorization: `Bearer ${await auth.currentUser.getIdToken()}`
-            }
-          }
-        );
+  const handleBack = () => {
+    if (currentStep > 1) {
+      setCurrentStep(currentStep - 1);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  };
 
-        const u = res.data;
+  const handleSubmit = async () => {
+    setIsLoading(true);
+    try {
+      // Simulate API call
+      await new Promise((resolve) => setTimeout(resolve, 2000));
 
-        setFormData({
-          phone: u.phone || "",
-          age: u.age || "",
-          weight: u.weight || "",
-          gender: u.gender || "",
-          dialysisType: u.medicalInfo?.dialysisType || "",
-          bloodGroup: u.medicalInfo?.bloodGroup || "",
-          emergencyName: u.emergencyContact?.name || "",
-          emergencyRelation: u.emergencyContact?.relation || "",
-          emergencyPhone: u.emergencyContact?.phone || "",
-          address: u.address || null,
-          location: u.location || null,
-        });
+      console.log("Profile data submitted:", formData);
 
-      } catch (err) {
-        console.error("Failed to load profile:", err);
-      }
-    };
-
-    loadProfile();
-  }, []);
-
+      // Navigate to success page or appointments page
+      navigate("/profile-success");
+    } catch (error) {
+      console.error("Error submitting profile:", error);
+      alert("Error completing profile. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
-    <div className="min-h-screen bg-slate-100 px-4 py-10 flex justify-center">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-teal-50">
+      <ProfileHeader />
 
-      <div className="w-full max-w-5xl bg-white rounded-3xl shadow-2xl p-10 space-y-12">
+      <div className="w-full px-4 sm:px-6 lg:px-8 py-8">
+        <div className="max-w-2xl mx-auto">
+          {/* Progress Indicator */}
+          <ProgressIndicator currentStep={currentStep} totalSteps={totalSteps} />
 
-        {/* HEADER */}
-        <div className="border-b pb-6">
-          <h2 className="text-3xl font-bold text-slate-800">
-            Patient Profile Setup
-          </h2>
-          <p className="text-slate-500 mt-2">
-            Complete your medical profile for personalized care and faster bookings
-          </p>
+          {/* Forms */}
+          <div className="space-y-6">
+            {currentStep === 1 && (
+              <PersonalDetailsForm
+                formData={formData}
+                setFormData={setFormData}
+                errors={errors}
+                setErrors={setErrors}
+              />
+            )}
+
+            {currentStep === 2 && (
+              <MedicalDetailsForm
+                formData={formData}
+                setFormData={setFormData}
+                errors={errors}
+                setErrors={setErrors}
+              />
+            )}
+
+            {currentStep === 3 && (
+              <LocationDetailsForm
+                formData={formData}
+                setFormData={setFormData}
+                errors={errors}
+                setErrors={setErrors}
+              />
+            )}
+
+            {/* Form Actions */}
+            <FormActions
+              onBack={handleBack}
+              onSubmit={handleNext}
+              isLoading={isLoading}
+              isFormValid={isCurrentStepValid()}
+              currentStep={currentStep}
+              totalSteps={totalSteps}
+            />
+          </div>
+
+          {/* Form Summary (Desktop) */}
+          <div className="hidden lg:block mt-8 bg-white rounded-2xl border-2 border-gray-300 p-6 shadow-md">
+            <h3 className="text-sm font-bold text-gray-900 mb-4">Profile Summary</h3>
+            <div className="grid grid-cols-2 gap-4 text-xs">
+              {formData.fullName && (
+                <div>
+                  <p className="text-gray-600">Full Name</p>
+                  <p className="font-semibold text-gray-900">{formData.fullName}</p>
+                </div>
+              )}
+              {formData.mobileNumber && (
+                <div>
+                  <p className="text-gray-600">Mobile</p>
+                  <p className="font-semibold text-gray-900">{formData.mobileNumber}</p>
+                </div>
+              )}
+              {formData.age && (
+                <div>
+                  <p className="text-gray-600">Age</p>
+                  <p className="font-semibold text-gray-900">{formData.age} years</p>
+                </div>
+              )}
+              {formData.bloodGroup && (
+                <div>
+                  <p className="text-gray-600">Blood Group</p>
+                  <p className="font-semibold text-gray-900">{formData.bloodGroup}</p>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
-
-        {/* PERSONAL INFO */}
-        <section className="space-y-6">
-
-          <h3 className="text-xl font-semibold text-teal-700">
-            Personal & Medical Information
-          </h3>
-
-          <div className="grid md:grid-cols-2 gap-6">
-
-            <input name="phone" placeholder="Mobile Number" value={formData.phone} onChange={handleChange} className="input" />
-
-            <input name="age" type="number" placeholder="Age" value={formData.age} onChange={handleChange} className="input" />
-
-            <input name="weight" type="number" placeholder="Weight (kg)" value={formData.weight} onChange={handleChange} className="input" />
-
-            <select name="gender" value={formData.gender} onChange={handleChange} className="input">
-              <option value="">Gender</option>
-              <option value="male">Male</option>
-              <option value="female">Female</option>
-              <option value="other">Other</option>
-            </select>
-
-            <select name="dialysisType" value={formData.dialysisType} onChange={handleChange} className="input">
-              <option value="">Dialysis Type</option>
-              <option value="hemodialysis">Hemodialysis</option>
-              <option value="peritoneal">Peritoneal Dialysis</option>
-            </select>
-
-            <input name="bloodGroup" placeholder="Blood Group (e.g. B+)" value={formData.bloodGroup} onChange={handleChange} className="input" />
-
-          </div>
-        </section>
-
-        {/* EMERGENCY */}
-        <section className="space-y-6 pt-8 border-t">
-
-          <h3 className="text-xl font-semibold text-red-600">
-            Emergency Contact
-          </h3>
-
-          <input
-            name="emergencyName"
-            placeholder="Emergency Contact Name"
-            value={formData.emergencyName}
-            onChange={handleChange}
-            className="input"
-          />
-
-          <div className="grid md:grid-cols-2 gap-6">
-
-            <input
-              name="emergencyRelation"
-              placeholder="Relation"
-              value={formData.emergencyRelation}
-              onChange={handleChange}
-              className="input"
-            />
-
-            <input
-              name="emergencyPhone"
-              placeholder="Emergency Phone Number"
-              value={formData.emergencyPhone}
-              onChange={handleChange}
-              className="input"
-            />
-
-          </div>
-        </section>
-
-        {/* LOCATION */}
-        {/* <section className="space-y-4 pt-8 border-t">
-
-          <h3 className="text-xl font-semibold text-slate-700">
-            Location Details
-          </h3>
-
-          <LocationDetailsForm
-            onChange={(location) =>
-              setFormData((prev) => ({ ...prev, location }))
-            }
-          />
-        </section> */}
-
-        <section className="space-y-4">
-
-          <LocationDetailsForm
-            value={{
-              address: formData.address,
-              location: formData.location,
-            }}
-            onChange={(payload) =>
-              setFormData((prev) => ({
-                ...prev,
-                address: payload.address,
-                location: payload.location,
-              }))
-            }
-          />
-
-
-        </section>
-
-        {/* ERROR */}
-        {error && (
-          <div className="bg-red-50 text-red-600 px-4 py-3 rounded-xl text-sm">
-            {error}
-          </div>
-        )}
-
-        {/* SUBMIT */}
-        <button
-          onClick={handleSubmit}
-          disabled={loading}
-          className="w-full py-4 rounded-xl bg-teal-600 hover:bg-teal-700
-                   text-white font-semibold text-lg transition disabled:opacity-60"
-        >
-          {loading ? "Saving Profile..." : "Save Changes"}
-        </button>
-
       </div>
-
-      {/* INPUT STYLES */}
-      <style>{`
-      .input {
-        width: 100%;
-        padding: 14px 16px;
-        border-radius: 14px;
-        background: #f1f5f9;
-        border: 1px solid #e2e8f0;
-        outline: none;
-      }
-
-      .input:focus {
-        border-color: #14b8a6;
-        background: white;
-      }
-    `}</style>
-
     </div>
   );
-
 }

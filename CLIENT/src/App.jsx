@@ -12,11 +12,12 @@ import AppointmentConfirmation from './pages/Patient/AppointmentConfirmation'
 import MyAppointments from './pages/Patient/MyAppointments'
 import PatientDetailsForm from './pages/Patient/CompleteProfile'
 import PatientProfile from './pages/Patient/PatientProfile'
-import CenterDetailsForm from './components/loginSignup/CenterDetailsForm'
-// import CenterDashboard from './pages/Center/CenterDashboard'
-// import CenterDetails from './pages/Patient/CenterDetails'
-// import EditProfile from './pages/Patient/EditProfile'
-// import CenterUpdateDetails from './pages/Center/CenterUpdateDetails'
+import CenterDetailsForm from './pages/Center/CenterDetailsForm'
+import HospitalRegistrationSuccess from './pages/Center/HospitalRegistraionSuccess'
+import CenterDashboard from './pages/Center/CenterDashboard'
+import EditProfile from './pages/Patient/EditProfile'
+import CenterUpdateDetails from './pages/Center/CenterUpdateDetails'
+import CompleteCenterDetail from './pages/Patient/CompleteCenterDetail'
 
 // import { Toaster } from 'react-hot-toast'
 
@@ -36,10 +37,11 @@ function App() {
         <Route path="/patient/detailsForm" element={<PatientDetailsForm />} />
         <Route path='/patient/profile' element={<PatientProfile />} />
         <Route path="/center/detailsForm" element={<CenterDetailsForm />} />
-        {/* <Route path='/patient/profile/edit' element={<EditProfile />} /> */}
-        {/* <Route path='/center/dashboard' element={<CenterDashboard />} /> */}
-        {/* <Route path='/center/:cid' element={<CenterDetails />} /> */}
-        {/* <Route path='/center/update' element={<CenterUpdateDetails />} />/ */}
+        <Route path="/center/registration-success" element={<HospitalRegistrationSuccess />} />
+        <Route path='/center/dashboard' element={<CenterDashboard />} />
+        <Route path='/patient/profile/edit' element={<EditProfile />} />
+        <Route path='/center/update' element={<CenterUpdateDetails />} />
+        <Route path='/center/:cid' element={<CompleteCenterDetail />} />
       </Routes>
     </>
   )

@@ -6,11 +6,11 @@ import BasicHospitalInfoForm from "../../components/centerDetailsForm/BasicHospi
 import OperatingHoursForm from "../../components/centerDetailsForm/OperatingHoursForm";
 import DialysisDetailsForm from "../../components/centerDetailsForm/DialysisDetailsForm";
 import HospitalLocationForm from "../../components/centerDetailsForm/HospitalLocationForm";
-import AdditionalFacilitiesForm from "../../components/centerDetailsForm/AdditionalFacilitiesForm";
+// import AdditionalFacilitiesForm from "../../components/centerDetailsForm/AdditionalFacilitiesForm";
 import BankDetailsForm from "../../components/centerDetailsForm/BankDetailsForm";
 import HospitalFormActions from "../../components/centerDetailsForm/HospitalFormActions";
 
-export default function CenterDetailsForm({ isEditMode = false }) {
+export default function CenterDeatilsForm({ isEditMode = false }) {
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(1);
   const totalSteps = 5;
@@ -21,7 +21,7 @@ export default function CenterDetailsForm({ isEditMode = false }) {
     hospitalName: "",
     email: "",
     phone: "",
-    website: "",
+    // website: "",
     // Operating Hours
     is24x7: false,
     operatingHours: {},
@@ -36,7 +36,7 @@ export default function CenterDetailsForm({ isEditMode = false }) {
     latitude: null,
     longitude: null,
     // Additional Facilities
-    facilities: [],
+    // facilities: [],
     // Bank Details
     accountHolderName: "",
     bankName: "",
@@ -126,7 +126,7 @@ export default function CenterDetailsForm({ isEditMode = false }) {
     try {
       await new Promise((resolve) => setTimeout(resolve, 2000));
       console.log("Hospital data submitted:", formData);
-      navigate("/hospital-success");
+      navigate("/center/registration-success");
     } catch (error) {
       console.error("Error submitting hospital registration:", error);
       alert("Error completing registration. Please try again.");
@@ -179,10 +179,10 @@ export default function CenterDetailsForm({ isEditMode = false }) {
                   errors={errors}
                   setErrors={setErrors}
                 />
-                <AdditionalFacilitiesForm
+                {/* <AdditionalFacilitiesForm
                   formData={formData}
                   setFormData={setFormData}
-                />
+                /> */}
               </>
             )}
 

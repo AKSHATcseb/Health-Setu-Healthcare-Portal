@@ -1,5 +1,5 @@
 import React from "react";
-import { Clock, Toggle2 } from "lucide-react";
+import { Clock } from "lucide-react";
 
 export default function OperatingHoursForm({ formData, setFormData }) {
   const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];

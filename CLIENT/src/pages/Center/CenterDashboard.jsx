@@ -1,115 +1,242 @@
-import { useEffect, useState } from "react";
-import AppointmentsTable from "../../components/centerDashboard/AppointmentsTable";
-import MachineTable from "../../components/centerDashboard/MachineTable";
-import PricingCard from "../../components/centerDashboard/PricingCard";
-import Sidebar from "../../components/centerDashboard/Sidebar";
-import StatsCard from "../../components/centerDashboard/StatsCard";
-import TopBar from "../../components/centerDashboard/TopBar";
-import { getMyHospital } from "../../services/hospitalApi";
-import { getHospitalAppointments } from "../../services/appointmentApi";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import HospitalDashboardHeader from "../../components/centerDashboard/HospitalDashboardHeader";
+import QuickStatsComponent from "../../components/centerDashboard/QuickStatsComponent";
+import AppointmentStatusOverview from "../../components/centerDashboard/AppointmentStatusOverview";
+import AppointmentsByDateChart from "../../components/centerDashboard/AppointmentsByDateChart";
+import UpcomingAppointmentsCard from "../../components/centerDashboard/UpcomingAppointmentsCard";
+import RecentActivityComponent from "../../components/centerDashboard/RecentActivityComponent";
+import HospitalInfoCard from "../../components/centerDashboard/HospitalInfoCard";
+import DialysisSeatsOccupancy from "../../components/centerDashboard/DialysisSeatsOccupancy";
+import PatientsListComponent from "../../components/centerDashboard/PatientsListComponent";
 
-const Dashboard = () => {
+export default function CenterDashboard() {
+  const navigate = useNavigate();
 
-  const [hospital, setHospital] = useState(null);
-  const [appointments, setAppointments] = useState([]);
+  // Sample hospital data
+  const hospitalData = {
+    name: "City Dialysis Center",
+    address: "123 Medical Plaza, Healthcare District, City, State 12345",
+    phone: "+1 (555) 123-4567",
+    is24x7: false,
+    hours: "7:00 AM - 9:00 PM",
+    dialysisSeats: 20,
+  };
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const hospitalRes = await getMyHospital();
-        setHospital(hospitalRes.data);
+  // Sample stats
+  const stats = {
+    totalAppointments: 156,
+    completed: 124,
+    pending: 15,
+    upcoming: 12,
+    cancelled: 5,
+    noShow: 0,
+    appointmentTrend: 5.2,
+    completedTrend: 3.1,
+    pendingTrend: -2.3,
+    upcomingTrend: 1.5,
+  };
 
-        const apptRes = await getHospitalAppointments(hospitalRes.data._id);
-        setAppointments(apptRes.data.appointments);
+  // Sample appointment status data
+  const appointmentStatusData = {
+    upcoming: 12,
+    completed: 124,
+    pending: 15,
+    cancelled: 5,
+    noShow: 0,
+  };
 
-      } catch (err) {
-        console.error(err);
-      }
-    };
+  // Sample appointments by date
+  const appointmentsByDate = [
+    { date: "Mon", booked: 8, completed: 6, cancelled: 1 },
+    { date: "Tue", booked: 12, completed: 10, cancelled: 1 },
+    { date: "Wed", booked: 10, completed: 9, cancelled: 0 },
+    { date: "Thu", booked: 14, completed: 13, cancelled: 1 },
+    { date: "Fri", booked: 11, completed: 10, cancelled: 0 },
+    { date: "Sat", booked: 7, completed: 6, cancelled: 1 },
+    { date: "Sun", booked: 5, completed: 4, cancelled: 0 },
+  ];
 
-    fetchData();
-  }, []);
+  // Sample upcoming appointments
+  const upcomingAppointments = [
+    {
+      id: 1,
+      appointmentId: "APT-001",
+      patientName: "John Doe",
+      date: "2026-03-01",
+      time: "09:00",
+      age: 45,
+      phone: "555-1234",
+      status: "pending",
+    },
+    {
+      id: 2,
+      appointmentId: "APT-002",
+      patientName: "Jane Smith",
+      date: "2026-03-01",
+      time: "10:30",
+      age: 38,
+      phone: "555-5678",
+      status: "approved",
+    },
+    {
+      id: 3,
+      appointmentId: "APT-003",
+      patientName: "Robert Wilson",
+      date: "2026-03-02",
+      time: "14:00",
+      age: 52,
+      phone: "555-9012",
+      status: "pending",
+    },
+  ];
 
-  /* ================= STATS CALCULATIONS ================= */
+  // Sample recent activities
+  const recentActivities = [
+    {
+      type: "approval",
+      title: "Appointment Approved",
+      description: "John Doe's appointment for Mar 1 was approved",
+      timestamp: new Date(Date.now() - 10 * 60000),
+    },
+    {
+      type: "booking",
+      title: "New Booking",
+      description: "Jane Smith booked an appointment for Mar 1",
+      timestamp: new Date(Date.now() - 30 * 60000),
+    },
+    {
+      type: "cancellation",
+      title: "Appointment Cancelled",
+      description: "Michael Brown cancelled appointment",
+      timestamp: new Date(Date.now() - 2 * 3600000),
+    },
+    {
+      type: "rejection",
+      title: "Appointment Rejected",
+      description: "Insufficient seat availability",
+      timestamp: new Date(Date.now() - 5 * 3600000),
+    },
+  ];
 
-  const pendingCount = appointments.filter(
-    a => a.status === "reserved"
-  ).length;
+  // Sample patients
+  const recentPatients = [
+    {
+      id: 1,
+      name: "John Doe",
+      phone: "+1 (555) 123-4567",
+      bloodGroup: "O+",
+      lastVisit: "2026-02-28",
+    },
+    {
+      id: 2,
+      name: "Jane Smith",
+      phone: "+1 (555) 987-6543",
+      bloodGroup: "A+",
+      lastVisit: "2026-02-27",
+    },
+    {
+      id: 3,
+      name: "Robert Wilson",
+      phone: "+1 (555) 456-7890",
+      bloodGroup: "B+",
+      lastVisit: "2026-02-26",
+    },
+    {
+      id: 4,
+      name: "Sarah Johnson",
+      phone: "+1 (555) 321-0987",
+      bloodGroup: "AB-",
+      lastVisit: "2026-02-25",
+    },
+  ];
 
-  const completedCount = appointments.filter(
-    a => a.status === "completed"
-  ).length;
+  // Dialysis seat occupancy
+  const totalSeats = 20;
+  const occupiedSeats = 15;
 
-  const completedToday = appointments.filter(a => {
-    const today = new Date().toDateString();
-    const date = new Date(a.appointmentDate).toDateString();
-    return a.status === "completed" && today === date;
-  }).length;
+  // Handlers
+  const handleApproveAppointment = (appointmentId) => {
+    console.log("Approved appointment:", appointmentId);
+    alert("Appointment approved!");
+  };
 
-  /* ===================================================== */
+  const handleCancelAppointment = (appointmentId) => {
+    console.log("Cancelled appointment:", appointmentId);
+    alert("Appointment cancelled!");
+  };
+
+  const handleEditPatient = (patientId) => {
+    console.log("Edit patient:", patientId);
+    navigate(`/patient-details/${patientId}`);
+  };
+
+  const handleDeletePatient = (patientId) => {
+    console.log("Delete patient:", patientId);
+    alert("Patient deleted!");
+  };
 
   return (
-    <div className="flex min-h-screen bg-white">
-      <Sidebar />
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-teal-50">
+      <HospitalDashboardHeader
+        hospitalName={hospitalData.name}
+        unreadNotifications={3}
+      />
 
-      <main className="flex-1 p-6 space-y-6">
+      <div className="w-full px-4 sm:px-6 lg:px-8 py-8">
+        <div className="max-w-7xl mx-auto">
+          {/* Quick Stats */}
+          <QuickStatsComponent stats={stats} />
 
-        <TopBar
-          hospitalName={hospital?.name}
-          email={hospital?.email}
-          phone={hospital?.phone}
-          street={hospital?.address?.street}
-          city={hospital?.address?.city}
-          state={hospital?.address?.state}
-          pincode={hospital?.address?.pincode}
-          upiId={hospital?.upiId}
-        />
+          {/* Main Grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+            {/* Left Column - Charts */}
+            <div className="lg:col-span-2 space-y-6">
+              {/* Appointment Status Overview */}
+              <AppointmentStatusOverview data={appointmentStatusData} />
 
-        {/* ================= STATS ================= */}
+              {/* Appointments by Date */}
+              <AppointmentsByDateChart data={appointmentsByDate} />
+            </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {/* Right Column - Info Cards */}
+            <div className="space-y-6">
+              {/* Hospital Info */}
+              <HospitalInfoCard hospitalInfo={hospitalData} />
 
-          <StatsCard
-            title="Total Dialysis Machines"
-            value={hospital?.totalMachines}
-          />
+              {/* Dialysis Seats */}
+              <DialysisSeatsOccupancy
+                totalSeats={totalSeats}
+                occupiedSeats={occupiedSeats}
+              />
+            </div>
+          </div>
 
-          <StatsCard
-            title="Available Machines"
-            value={hospital?.availableMachines}
-            highlight="green"
-          />
+          {/* Bottom Grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Upcoming Appointments */}
+            <div className="lg:col-span-2">
+              <UpcomingAppointmentsCard
+                appointments={upcomingAppointments}
+                onApprove={handleApproveAppointment}
+                onCancel={handleCancelAppointment}
+              />
+            </div>
 
-          <StatsCard
-            title="Pending Requests"
-            value={pendingCount}
-            highlight="yellow"
-          />
+            {/* Recent Activity */}
+            <RecentActivityComponent activities={recentActivities} />
+          </div>
 
-          <StatsCard
-            title="Completed Sessions"
-            value={completedCount}   // use completedToday if you prefer daily
-            highlight="blue"
-          />
-
+          {/* Patients Table */}
+          <div className="mt-6">
+            <PatientsListComponent
+              patients={recentPatients}
+              onEdit={handleEditPatient}
+              onDelete={handleDeletePatient}
+            />
+          </div>
         </div>
-
-        {/* ================= PRICING ================= */}
-
-        <PricingCard 
-          cost4h={hospital?.costPerSession4h}
-          cost6h={hospital?.costPerSession6h} 
-          emergencyCost={hospital?.emergencyCostPerSession}
-        />
-
-        {/* ================= TABLES ================= */}
-
-        <AppointmentsTable hospitalId={hospital?._id} />
-        {/* <MachineTable hospitalId={hospital?._id} /> */}
-
-      </main>
+      </div>
     </div>
   );
-};
-
-export default Dashboard;
+}
