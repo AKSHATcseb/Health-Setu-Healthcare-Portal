@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Navbar from "../../components/Navbar";
+// import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
 import Header from "../../components/bookingPage/Header";
 import FilterBar from "../../components/bookingPage/FilterBar";
@@ -124,7 +124,7 @@ export default function BookAppointment() {
 
   return (
     <div className="w-full min-h-screen bg-gradient-to-b from-blue-50 via-white to-teal-50 flex flex-col">
-      <Navbar user={user} onLogout={() => navigate("/login")} onUpdateProfile={() => navigate("/patient/details")} />
+      {/* <Navbar user={user} onLogout={() => navigate("/login")} onUpdateProfile={() => navigate("/patient/details")} /> */}
 
       <div className="flex-1">
         <Header />

@@ -11,11 +11,11 @@ export default function LocationDetailsForm({ formData, setFormData, errors, set
 
   const handleAddressChange = (e) => {
     const value = e.target.value;
-    setFormData({ ...formData, address: value });
+    setFormData((p) => ({ ...p, address: value }));
     if (value && !validateAddress(value)) {
-      setErrors({ ...errors, address: "Address must be at least 10 characters" });
+      setErrors((prev) => ({ ...prev, address: "Address must be at least 10 characters" }));
     } else {
-      setErrors({ ...errors, address: "" });
+      setErrors((prev) => ({ ...prev, address: "" }));
     }
   };
 
@@ -27,24 +27,28 @@ export default function LocationDetailsForm({ formData, setFormData, errors, set
       navigator.geolocation.getCurrentPosition(
         (position) => {
           const { latitude, longitude } = position.coords;
-          setFormData({
-            ...formData,
+          setFormData((p) => ({
+            ...p,
             latitude,
             longitude,
-            address: `Latitude: ${latitude.toFixed(6)}, Longitude: ${longitude.toFixed(6)}`,
-          });
+            // preserve user address if they already typed one; otherwise set a friendly placeholder
+            address: p.address && p.address.trim().length >= 10
+              ? p.address
+              : `Latitude: ${latitude.toFixed(6)}, Longitude: ${longitude.toFixed(6)}`,
+          }));
           setLocationLoading(false);
           setLocationError("");
         },
         (error) => {
           setLocationLoading(false);
           const errorMessages = {
-            PERMISSION_DENIED: "Location access denied. Please enable location in browser settings.",
-            POSITION_UNAVAILABLE: "Location information is unavailable.",
-            TIMEOUT: "The request to get location timed out.",
+            1: "Location access denied. Please enable location in browser settings.",
+            2: "Location information is unavailable.",
+            3: "The request to get location timed out.",
           };
           setLocationError(errorMessages[error.code] || "Unable to fetch location");
-        }
+        },
+        { timeout: 10000 }
       );
     } else {
       setLocationLoading(false);
@@ -71,7 +75,7 @@ export default function LocationDetailsForm({ formData, setFormData, errors, set
             <MapPin size={18} className="absolute left-3 top-3 text-gray-400" />
             <textarea
               placeholder="Enter your full address (street, city, state, postal code)"
-              value={formData.address}
+              value={formData.address || ""}
               onChange={handleAddressChange}
               rows="3"
               className={`w-full pl-10 pr-4 py-2.5 rounded-lg border-2 transition-all duration-300 outline-none text-sm resize-none ${
@@ -126,10 +130,10 @@ export default function LocationDetailsForm({ formData, setFormData, errors, set
             <p className="text-xs text-green-700 font-semibold mb-2">Location Detected ✓</p>
             <div className="grid grid-cols-2 gap-2 text-xs text-green-700">
               <div>
-                <span className="font-semibold">Latitude:</span> {formData.latitude.toFixed(6)}
+                <span className="font-semibold">Latitude:</span> {Number(formData.latitude).toFixed(6)}
               </div>
               <div>
-                <span className="font-semibold">Longitude:</span> {formData.longitude.toFixed(6)}
+                <span className="font-semibold">Longitude:</span> {Number(formData.longitude).toFixed(6)}
               </div>
             </div>
           </div>

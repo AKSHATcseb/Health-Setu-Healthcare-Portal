@@ -1,5 +1,4 @@
 import React from "react";
-import { ChevronLeft, CheckCircle, Loader } from "lucide-react";
 
 export default function FormActions({
   onBack,
@@ -9,38 +8,31 @@ export default function FormActions({
   currentStep,
   totalSteps,
 }) {
+  const isLast = currentStep === totalSteps;
   return (
-    <div className="flex gap-3 pt-6">
-      {currentStep > 1 && (
-        <button
-          onClick={onBack}
-          disabled={isLoading}
-          className="flex items-center gap-2 px-6 py-3 rounded-lg font-semibold text-gray-700 bg-gray-100 hover:bg-gray-200 border-2 border-gray-300 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed text-sm"
-        >
-          <ChevronLeft size={16} />
-          Back
-        </button>
-      )}
+    <div className="flex items-center justify-between gap-4">
+      <button
+        type="button"
+        onClick={onBack}
+        disabled={currentStep === 1 || isLoading}
+        className="px-4 py-2 rounded-lg border bg-white disabled:opacity-50"
+      >
+        Back
+      </button>
 
       <button
+        type="button"
         onClick={onSubmit}
-        disabled={isLoading || !isFormValid}
-        className={`flex-1 flex items-center justify-center gap-2 px-6 py-3 rounded-lg font-semibold transition-all duration-300 transform text-sm ${
-          isFormValid && !isLoading
-            ? "bg-gradient-to-r from-blue-600 to-teal-600 text-white hover:shadow-lg hover:scale-105"
-            : "bg-gray-400 text-white cursor-not-allowed"
-        }`}
+        disabled={!isFormValid || isLoading}
+        className="ml-auto px-6 py-2 rounded-lg bg-gradient-to-r from-blue-600 to-teal-500 text-white font-semibold disabled:opacity-50 flex items-center gap-2"
       >
         {isLoading ? (
-          <>
-            <Loader size={16} className="animate-spin" />
-            {currentStep === totalSteps ? "Saving..." : "Continuing..."}
-          </>
+          <span className="inline-flex items-center">
+            <span className="w-4 h-4 mr-2 border-2 border-white border-t-transparent rounded-full animate-spin" />
+            {isLast ? "Completing..." : "Saving..."}
+          </span>
         ) : (
-          <>
-            <CheckCircle size={16} />
-            {currentStep === totalSteps ? "Complete Profile" : "Next"}
-          </>
+          <span>{isLast ? "Complete Profile" : "Save & Continue"}</span>
         )}
       </button>
     </div>

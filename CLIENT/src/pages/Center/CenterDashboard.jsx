@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import HospitalDashboardHeader from "../../components/centerDashboard/HospitalDashboardHeader";
 import QuickStatsComponent from "../../components/centerDashboard/QuickStatsComponent";
 import AppointmentStatusOverview from "../../components/centerDashboard/AppointmentStatusOverview";
@@ -9,21 +9,158 @@ import RecentActivityComponent from "../../components/centerDashboard/RecentActi
 import HospitalInfoCard from "../../components/centerDashboard/HospitalInfoCard";
 import DialysisSeatsOccupancy from "../../components/centerDashboard/DialysisSeatsOccupancy";
 import PatientsListComponent from "../../components/centerDashboard/PatientsListComponent";
+import api, { setAuthToken } from "../../services/api";
 
-export default function CenterDashboard() {
+export default function HospitalDashboard() {
   const navigate = useNavigate();
+  const { id } = useParams(); // hospital id from URL: /center/dashboard/:id or similar
 
-  // Sample hospital data
-  const hospitalData = {
-    name: "City Dialysis Center",
-    address: "123 Medical Plaza, Healthcare District, City, State 12345",
-    phone: "+1 (555) 123-4567",
-    is24x7: false,
-    hours: "7:00 AM - 9:00 PM",
-    dialysisSeats: 20,
+  const [hospital, setHospital] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  // Derive a "user" object used by header (prefer hospital data)
+  const userFromHospital = hospital
+    ? { name: hospital.hospitalName || hospital.name || "Hospital", email: hospital.email || "" }
+    : null;
+
+  const userFallback = { name: "Center", email: "" };
+
+  useEffect(() => {
+    console.log("HospitalDashboard page loaded");
+    const fetchHospital = async () => {
+      setLoading(true);
+      setError("");
+      try {
+        // prefer session token (non-persistent) then local token
+        const token = sessionStorage.getItem("token") || localStorage.getItem("token") || null;
+        console.log("Token found (session/local):", !!token);
+        if (token) {
+          setAuthToken(token);
+        } else {
+          setAuthToken(null);
+        }
+
+        if (!id) {
+          setError("Invalid URL: missing hospital id");
+          setLoading(false);
+          return;
+        }
+
+        console.log("Calling GET /api/hospital/" + id);
+        const res = await api.get(`/api/hospital/${id}`);
+        const hospitalDetails = res.data.hospitalFromHospitalModel ?? null;
+        console.log("hospitalDetails fetched:", res.data.hospitalFromHospitalModel);
+        setHospital(hospitalDetails);
+      } catch (err) {
+        console.error("Error fetching hospital:", err);
+        if (err.response) {
+          console.error("Response status:", err.response.status, "data:", err.response.data);
+          if (err.response.status === 400) {
+            // invalid id or bad request -> redirect to center details form to re-create/complete
+            navigate("/center/detailsForm");
+            return;
+          }
+          if (err.response.status === 404) {
+            // not found -> redirect to details form to create
+            navigate("/center/detailsForm");
+            return;
+          } else if (err.response.status === 401) {
+            setError("Unauthorized. Please login again.");
+            // clear stored token and auth header
+            sessionStorage.removeItem("token");
+            localStorage.removeItem("token");
+            setAuthToken(null);
+            navigate("/login", { replace: true });
+            return;
+          } else if (err.response.status === 403) {
+            setError("Forbidden. You don't have access to this hospital.");
+          } else {
+            setError(err.response.data?.message || "Unable to load hospital data. Please try again later.");
+          }
+        } else if (err.request) {
+          console.error("No response received. Request:", err.request);
+          setError("No response from server. Check network or CORS.");
+        } else {
+          console.error("Request setup error:", err.message);
+          setError(err.message || "Error fetching hospital data.");
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchHospital();
+  }, [id, navigate]);
+
+  const handleLogout = async () => {
+    try {
+      localStorage.removeItem("token");
+      sessionStorage.removeItem("token");
+      setAuthToken(null);
+      navigate("/login", { replace: true });
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
   };
 
-  // Sample stats
+  const handleEditPatient = (patientId) => {
+    console.log("Edit patient:", patientId);
+    navigate(`/patient-details/${patientId}`);
+  };
+
+  const handleDeletePatient = (patientId) => {
+    console.log("Delete patient:", patientId);
+    alert("Patient deleted!");
+  };
+
+  const handleApproveAppointment = (appointmentId) => {
+    console.log("Approved appointment:", appointmentId);
+    alert("Appointment approved!");
+  };
+
+  const handleCancelAppointment = (appointmentId) => {
+    console.log("Cancelled appointment:", appointmentId);
+    alert("Appointment cancelled!");
+  };
+
+  if (loading) {
+    return (
+      <div className="w-full min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-gray-600">Loading dashboard...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="w-full min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="max-w-xl text-center p-6 bg-white rounded-xl shadow">
+          <h2 className="text-lg font-semibold text-red-600">Error</h2>
+          <p className="mt-2 text-sm text-gray-600">{error}</p>
+          <div className="mt-4">
+            <button onClick={() => navigate("/")} className="px-4 py-2 bg-blue-600 text-white rounded">
+              Go Home
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Build display data - fallback to sensible values if some fields missing
+  const hospitalData = {
+    name: hospital?.hospitalName || hospital?.name || "City Dialysis Center",
+    address: hospital?.address || "123 Medical Plaza, Healthcare District, City, State 12345",
+    phone: hospital?.phone || "+1 (555) 123-4567",
+    is24x7: !!hospital?.is24x7,
+    hours: hospital?.is24x7 ? "Open 24x7" : hospital?.operatingHours?.Monday ? `${hospital.operatingHours.Monday.open} - ${hospital.operatingHours.Monday.close}` : "7:00 AM - 9:00 PM",
+    dialysisSeats: hospital?.dialysisSeats ?? hospital?.totalMachines ?? 20,
+  };
+
+  // quick stats and lists can be derived or mocked until you add real endpoints
   const stats = {
     totalAppointments: 156,
     completed: 124,
@@ -37,7 +174,6 @@ export default function CenterDashboard() {
     upcomingTrend: 1.5,
   };
 
-  // Sample appointment status data
   const appointmentStatusData = {
     upcoming: 12,
     completed: 124,
@@ -46,7 +182,6 @@ export default function CenterDashboard() {
     noShow: 0,
   };
 
-  // Sample appointments by date
   const appointmentsByDate = [
     { date: "Mon", booked: 8, completed: 6, cancelled: 1 },
     { date: "Tue", booked: 12, completed: 10, cancelled: 1 },
@@ -57,7 +192,6 @@ export default function CenterDashboard() {
     { date: "Sun", booked: 5, completed: 4, cancelled: 0 },
   ];
 
-  // Sample upcoming appointments
   const upcomingAppointments = [
     {
       id: 1,
@@ -91,7 +225,6 @@ export default function CenterDashboard() {
     },
   ];
 
-  // Sample recent activities
   const recentActivities = [
     {
       type: "approval",
@@ -119,7 +252,6 @@ export default function CenterDashboard() {
     },
   ];
 
-  // Sample patients
   const recentPatients = [
     {
       id: 1,
@@ -151,37 +283,16 @@ export default function CenterDashboard() {
     },
   ];
 
-  // Dialysis seat occupancy
-  const totalSeats = 20;
-  const occupiedSeats = 15;
+  const totalSeats = hospitalData.dialysisSeats;
+  const occupiedSeats = Math.min(totalSeats, 15); // example
 
-  // Handlers
-  const handleApproveAppointment = (appointmentId) => {
-    console.log("Approved appointment:", appointmentId);
-    alert("Appointment approved!");
-  };
-
-  const handleCancelAppointment = (appointmentId) => {
-    console.log("Cancelled appointment:", appointmentId);
-    alert("Appointment cancelled!");
-  };
-
-  const handleEditPatient = (patientId) => {
-    console.log("Edit patient:", patientId);
-    navigate(`/patient-details/${patientId}`);
-  };
-
-  const handleDeletePatient = (patientId) => {
-    console.log("Delete patient:", patientId);
-    alert("Patient deleted!");
-  };
+  const userToShow = userFromHospital || userFallback;
+  console.log("HospitalDashboard rendering with user:", userToShow, "hospital:", hospital);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-teal-50">
-      <HospitalDashboardHeader
-        hospitalName={hospitalData.name}
-        unreadNotifications={3}
-      />
+      <HospitalDashboardHeader hospitalName={hospital.hospitalName
+} unreadNotifications={3} onLogout={handleLogout} />
 
       <div className="w-full px-4 sm:px-6 lg:px-8 py-8">
         <div className="max-w-7xl mx-auto">
@@ -192,48 +303,29 @@ export default function CenterDashboard() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
             {/* Left Column - Charts */}
             <div className="lg:col-span-2 space-y-6">
-              {/* Appointment Status Overview */}
               <AppointmentStatusOverview data={appointmentStatusData} />
-
-              {/* Appointments by Date */}
               <AppointmentsByDateChart data={appointmentsByDate} />
             </div>
 
             {/* Right Column - Info Cards */}
             <div className="space-y-6">
-              {/* Hospital Info */}
-              <HospitalInfoCard hospitalInfo={hospitalData} />
-
-              {/* Dialysis Seats */}
-              <DialysisSeatsOccupancy
-                totalSeats={totalSeats}
-                occupiedSeats={occupiedSeats}
-              />
+              <HospitalInfoCard hospitalInfo={hospital} />
+              <DialysisSeatsOccupancy totalSeats={totalSeats} occupiedSeats={occupiedSeats} />
             </div>
           </div>
 
           {/* Bottom Grid */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Upcoming Appointments */}
             <div className="lg:col-span-2">
-              <UpcomingAppointmentsCard
-                appointments={upcomingAppointments}
-                onApprove={handleApproveAppointment}
-                onCancel={handleCancelAppointment}
-              />
+              <UpcomingAppointmentsCard appointments={upcomingAppointments} onApprove={handleApproveAppointment} onCancel={handleCancelAppointment} />
             </div>
 
-            {/* Recent Activity */}
             <RecentActivityComponent activities={recentActivities} />
           </div>
 
           {/* Patients Table */}
           <div className="mt-6">
-            <PatientsListComponent
-              patients={recentPatients}
-              onEdit={handleEditPatient}
-              onDelete={handleDeletePatient}
-            />
+            <PatientsListComponent patients={recentPatients} onEdit={handleEditPatient} onDelete={handleDeletePatient} />
           </div>
         </div>
       </div>

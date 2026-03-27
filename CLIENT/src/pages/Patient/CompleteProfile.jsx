@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import ProfileHeader from "../../components/patientDetailsForm/ProfileHeader";
 import ProgressIndicator from "../../components/patientDetailsForm/ProgressIndicator";
@@ -6,12 +6,27 @@ import PersonalDetailsForm from "../../components/patientDetailsForm/PersonalDet
 import MedicalDetailsForm from "../../components/patientDetailsForm/MedicalDetailsForm";
 import LocationDetailsForm from "../../components/patientDetailsForm/LocationDetailsForm";
 import FormActions from "../../components/patientDetailsForm/FormActions";
+import api, { setAuthToken } from "../../services/api";
+
+/**
+ * CompleteProfile
+ *
+ * - Prefills data by calling GET /api/patient/details (requires Authorization header).
+ * - Submits profile to POST /api/patient/details.
+ * - Backend will mark profileCompleted = true on save. After successful save,
+ *   we redirect user to /patient/dashboard/:id using the returned patient._id.
+ *
+ * Note: This component expects the child form components to:
+ * - accept formData and setFormData props (they already do in your snippet),
+ * - not perform API calls themselves.
+ */
 
 export default function CompleteProfile() {
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(1);
   const totalSteps = 3;
   const [isLoading, setIsLoading] = useState(false);
+  const [globalError, setGlobalError] = useState("");
 
   const [formData, setFormData] = useState({
     // Personal Details
@@ -36,24 +51,82 @@ export default function CompleteProfile() {
     address: "",
   });
 
+  // Load prefill / existing patient on mount
+  useEffect(() => {
+    const fetchPrefill = async () => {
+      setIsLoading(true);
+      setGlobalError("");
+      try {
+        const token = sessionStorage.getItem("token") || localStorage.getItem("token");
+        if (token) setAuthToken(token);
+        else setAuthToken(null);
+
+        const res = await api.get("/api/patient/details");
+        // res.data: { prefill: { fullName, email }, patient: {...} }
+        const prefill = res.data?.prefill ?? {};
+        const patient = res.data?.patient ?? null;
+
+        setFormData((prev) => ({
+          ...prev,
+          fullName: patient?.fullName ?? prefill.fullName ?? prev.fullName,
+          email: prefill.email ?? patient?.email ?? prev.email,
+          mobileNumber: patient?.mobileNumber ?? prev.mobileNumber,
+          age: patient?.age ?? prev.age,
+          gender: patient?.gender ?? prev.gender,
+          bloodGroup: patient?.bloodGroup ?? prev.bloodGroup,
+          address: patient?.address ?? prev.address,
+          latitude: patient?.latitude ?? prev.latitude,
+          longitude: patient?.longitude ?? prev.longitude,
+        }));
+
+        // If patient exists and profileCompleted === true, redirect to dashboard
+        if (patient && patient.profileCompleted === true) {
+          const pid = patient._id || patient.id;
+          if (pid) {
+            navigate(`/patient/dashboard/${pid}`, { replace: true });
+            return;
+          }
+        }
+
+        // If patient exists and incomplete, keep them on form with prefilled fields
+      } catch (err) {
+        console.error("Failed to fetch patient prefill:", err);
+        // If 404, no prefill -> continue with empty form. Show only non-fatal message.
+        if (err.response && err.response.status !== 404) {
+          setGlobalError(
+            err.response?.data?.message ||
+              "Unable to fetch existing profile. Please try again."
+          );
+        }
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchPrefill();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // Validation functions
   const isStep1Valid = () => {
-    return (
-      formData.fullName &&
-      formData.mobileNumber &&
-      formData.email &&
+    const ok =
+      formData.fullName?.trim() &&
+      formData.mobileNumber?.trim() &&
+      formData.email?.trim() &&
       !errors.fullName &&
       !errors.mobileNumber &&
-      !errors.email
-    );
+      !errors.email;
+    return Boolean(ok);
   };
 
   const isStep2Valid = () => {
-    return formData.age && formData.gender && formData.bloodGroup && !errors.age;
+    const ok = formData.age && formData.gender && formData.bloodGroup && !errors.age;
+    return Boolean(ok);
   };
 
   const isStep3Valid = () => {
-    return formData.address && !errors.address;
+    const ok = formData.address && !errors.address;
+    return Boolean(ok);
   };
 
   const isCurrentStepValid = () => {
@@ -64,37 +137,79 @@ export default function CompleteProfile() {
   };
 
   const handleNext = async () => {
-    if (!isCurrentStepValid()) return;
+    setGlobalError("");
+    // Validate current step before moving
+    if (!isCurrentStepValid()) {
+      setGlobalError("Please fix validation errors before continuing.");
+      return;
+    }
 
     if (currentStep < totalSteps) {
-      setCurrentStep(currentStep + 1);
+      setCurrentStep((s) => s + 1);
       window.scrollTo({ top: 0, behavior: "smooth" });
     } else {
-      // Submit form
+      // final submit
       await handleSubmit();
     }
   };
 
   const handleBack = () => {
+    setGlobalError("");
     if (currentStep > 1) {
-      setCurrentStep(currentStep - 1);
+      setCurrentStep((s) => s - 1);
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
   };
 
   const handleSubmit = async () => {
+    setGlobalError("");
     setIsLoading(true);
+
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      // Ensure auth header set
+      const token = sessionStorage.getItem("token") || localStorage.getItem("token");
+      if (token) setAuthToken(token);
+      else setAuthToken(null);
 
-      console.log("Profile data submitted:", formData);
+      // Build payload expected by backend.
+      const payload = {
+        // fullName is optional (backend will accept it), email is NOT sent (backend takes canonical email).
+        fullName: formData.fullName?.trim() || undefined,
+        mobileNumber: String(formData.mobileNumber).trim(),
+        age: Number(formData.age),
+        gender: formData.gender,
+        bloodGroup: formData.bloodGroup,
+        address: String(formData.address).trim(),
+        latitude: formData.latitude ?? null,
+        longitude: formData.longitude ?? null,
+        // do not explicitly set profileCompleted unless you want to override backend default
+      };
 
-      // Navigate to success page or appointments page
-      navigate("/profile-success");
-    } catch (error) {
-      console.error("Error submitting profile:", error);
-      alert("Error completing profile. Please try again.");
+      const res = await api.post("/api/patient/details", payload);
+
+      // Expect response: { message, user: { id, email }, patient }
+      const savedPatient = res.data?.patient;
+      if (!savedPatient) {
+        setGlobalError("Saved but server did not return patient id. Please try again.");
+        return;
+      }
+
+      const pid = savedPatient._id || savedPatient.id;
+      if (!pid) {
+        setGlobalError("Saved but no patient id returned. Please contact support.");
+        return;
+      }
+
+      // Redirect to dashboard for the saved patient
+      // navigate(`/patient/dashboard/${pid}`, { replace: true });
+      navigate(`/login`, { replace: true });
+    } catch (err) {
+      console.error("Error saving profile:", err);
+      const msg =
+        err.response?.data?.message ||
+        err.message ||
+        "Unable to save profile. Please try again.";
+      setGlobalError(msg);
     } finally {
       setIsLoading(false);
     }
@@ -109,6 +224,20 @@ export default function CompleteProfile() {
           {/* Progress Indicator */}
           <ProgressIndicator currentStep={currentStep} totalSteps={totalSteps} />
 
+          {/* Global Error */}
+          {globalError && (
+            <div className="mb-4 p-3 rounded bg-red-50 text-red-700 border border-red-100">
+              {globalError}
+            </div>
+          )}
+
+          {/* Loading indicator (initial prefill) */}
+          {isLoading && (
+            <div className="mb-4 p-3 rounded bg-yellow-50 text-yellow-700 border border-yellow-100">
+              Processing...
+            </div>
+          )}
+
           {/* Forms */}
           <div className="space-y-6">
             {currentStep === 1 && (
@@ -117,6 +246,8 @@ export default function CompleteProfile() {
                 setFormData={setFormData}
                 errors={errors}
                 setErrors={setErrors}
+                // If your PersonalDetailsForm expects props to disable editing email:
+                readOnlyEmail={true}
               />
             )}
 

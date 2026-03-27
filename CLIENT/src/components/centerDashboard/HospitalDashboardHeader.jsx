@@ -47,7 +47,7 @@ export default function HospitalDashboardHeader({ hospitalName, unreadNotificati
             <button
               onClick={() => {
                 if (window.confirm("Are you sure you want to logout?")) {
-                  navigate("/hospital-login");
+                  navigate("/login");
                 }
               }}
               className="p-2 bg-white/20 backdrop-blur-lg rounded-lg border border-white/30 hover:bg-white/30 transition-all duration-300 text-white"

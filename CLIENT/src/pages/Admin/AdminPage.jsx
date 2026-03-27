@@ -99,7 +99,6 @@ export default function AdminHospitalsPage() {
   const handleUpdateStatus = async (action, payloadWithNote) => {
     if (!payloadWithNote || !payloadWithNote._id) return;
     console.log("ID:", payloadWithNote._id);
-    console.log("Response:", payloadWithNote);
     console.log("ACTION:", action);
     console.log("PAYLOAD:", payloadWithNote);
     setActionLoading(true);
@@ -202,6 +201,7 @@ export default function AdminHospitalsPage() {
             data={filtered}
             onRowClick={openDetails}
             onActionClick={(action, item) => openConfirm(action, item)}
+            actionsDisabled={actionLoading} // <-- NEW
           />
         )}
       </main>
@@ -211,6 +211,7 @@ export default function AdminHospitalsPage() {
         item={selected}
         onClose={closeDetails}
         onAction={(action, item, note) => openConfirm(action, { ...item, note })}
+        actionsDisabled={actionLoading} // <-- NEW
       />
 
       <ConfirmationModal

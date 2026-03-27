@@ -1,8 +1,10 @@
 import React, { useState } from "react";
 import { Menu, X, Heart } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
+  const navigate = useNavigate();
 
   return (
     <nav className="w-full sticky top-0 z-50 bg-white border-b border-gray-200 shadow-sm">
@@ -37,7 +39,9 @@ export default function Navbar() {
 
           {/* Buttons */}
           <div className="hidden lg:flex items-center gap-4">
-            <button className="px-6 py-2 text-blue-600 font-semibold border-2 border-blue-600 rounded-full hover:bg-blue-50 transition-all duration-300">
+            <button
+            onClick={() => navigate("/login")}
+            className="px-6 py-2 text-blue-600 font-semibold border-2 border-blue-600 rounded-full hover:bg-blue-50 transition-all duration-300">
               Sign In
             </button>
             <button className="px-6 py-2 bg-gradient-to-r from-blue-600 to-teal-500 text-white font-semibold rounded-full hover:shadow-lg hover:shadow-blue-200 hover:scale-105 transition-all duration-300">

@@ -1,23 +1,35 @@
-import React, { useState } from "react";
-import { Heart, Calendar, Users } from "lucide-react";
+import React from "react";
+import { Heart, Calendar } from "lucide-react";
 
 export default function MedicalDetailsForm({ formData, setFormData, errors, setErrors }) {
   const bloodGroups = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
-  const genders = ["Male", "Female", "Other"];
+  const genders = ["male", "female", "other"];
 
   const validateAge = (age) => {
-    const ageNum = parseInt(age);
-    return age && ageNum >= 18 && ageNum <= 120;
+    const ageNum = Number(age);
+    return age && Number.isFinite(ageNum) && ageNum >= 18 && ageNum <= 120;
   };
 
   const handleAgeChange = (e) => {
     const value = e.target.value;
-    setFormData({ ...formData, age: value });
+    // allow empty string while typing
+    setFormData((p) => ({ ...p, age: value }));
     if (value && !validateAge(value)) {
-      setErrors({ ...errors, age: "Age must be between 18 and 120" });
+      setErrors((prev) => ({ ...prev, age: "Age must be between 18 and 120" }));
     } else {
-      setErrors({ ...errors, age: "" });
+      setErrors((prev) => ({ ...prev, age: "" }));
     }
+  };
+
+  const handleGenderSelect = (gender) => {
+    // normalize gender to lower-case to match backend enums
+    setFormData((p) => ({ ...p, gender: gender.toLowerCase() }));
+    setErrors((prev) => ({ ...prev, gender: "" }));
+  };
+
+  const handleBloodGroupSelect = (group) => {
+    setFormData((p) => ({ ...p, bloodGroup: group }));
+    setErrors((prev) => ({ ...prev, bloodGroup: "" }));
   };
 
   return (
@@ -62,17 +74,18 @@ export default function MedicalDetailsForm({ formData, setFormData, errors, setE
             Gender <span className="text-red-500">*</span>
           </label>
           <div className="grid grid-cols-3 gap-3">
-            {genders.map((gender) => (
+            {genders.map((g) => (
               <button
-                key={gender}
-                onClick={() => setFormData({ ...formData, gender })}
+                key={g}
+                type="button"
+                onClick={() => handleGenderSelect(g)}
                 className={`py-2.5 px-4 rounded-lg font-semibold text-sm border-2 transition-all duration-300 transform hover:scale-105 ${
-                  formData.gender === gender
+                  formData.gender === g
                     ? "bg-gradient-to-r from-blue-500 to-teal-500 text-white border-blue-600 shadow-md"
                     : "bg-gray-100 text-gray-800 border-gray-400 hover:bg-gray-200 hover:border-blue-400"
                 }`}
               >
-                {gender}
+                {g.charAt(0).toUpperCase() + g.slice(1)}
               </button>
             ))}
           </div>
@@ -87,7 +100,8 @@ export default function MedicalDetailsForm({ formData, setFormData, errors, setE
             {bloodGroups.map((group) => (
               <button
                 key={group}
-                onClick={() => setFormData({ ...formData, bloodGroup: group })}
+                type="button"
+                onClick={() => handleBloodGroupSelect(group)}
                 className={`py-2.5 px-3 rounded-lg font-bold text-sm border-2 transition-all duration-300 transform hover:scale-105 ${
                   formData.bloodGroup === group
                     ? "bg-gradient-to-r from-red-500 to-pink-500 text-white border-red-600 shadow-md"
