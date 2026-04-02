@@ -248,66 +248,70 @@ export default function CompleteHospitalProfile({ isEditMode = false }) {
   };
 
   return (
-    <div>
+    <div className="bg-slate-200 h-screen overflow-auto">
       <HospitalHeader />
 
       <HospitalProgressIndicator currentStep={currentStep} totalSteps={totalSteps} />
 
-      {currentStep === 1 && (
-        <BasicHospitalInfoForm
-          formData={formData}
-          setFormData={setFormData}
-          errors={errors}
-          setErrors={setErrors}
+      <div className="w-full px-4 sm:px-6 lg:px-8 py-8">
+        <div className="max-w-5xl mx-auto">
+        {currentStep === 1 && (
+          <BasicHospitalInfoForm
+            formData={formData}
+            setFormData={setFormData}
+            errors={errors}
+            setErrors={setErrors}
+          />
+        )}
+
+        {currentStep === 2 && (
+          <OperatingHoursForm
+            formData={formData}
+            setFormData={setFormData}
+            errors={errors}
+            setErrors={setErrors}
+          />
+        )}
+
+        {currentStep === 3 && (
+          <DialysisDetailsForm
+            formData={formData}
+            setFormData={setFormData}
+            errors={errors}
+            setErrors={setErrors}
+          />
+        )}
+
+        {currentStep === 4 && (
+          <HospitalLocationForm
+            formData={formData}
+            setFormData={setFormData}
+            errors={errors}
+            setErrors={setErrors}
+          />
+        )}
+
+        {currentStep === 5 && (
+          <BankDetailsForm
+            formData={formData}
+            setFormData={setFormData}
+            errors={errors}
+            setErrors={setErrors}
+          />
+        )}
+
+        <HospitalFormActions
+          onBack={goBack}
+          onSubmit={handleNext}
+          isLoading={isLoading}
+          isFormValid={isStepValid(currentStep)}
+          currentStep={currentStep}
+          totalSteps={totalSteps}
         />
-      )}
 
-      {currentStep === 2 && (
-        <OperatingHoursForm
-          formData={formData}
-          setFormData={setFormData}
-          errors={errors}
-          setErrors={setErrors}
-        />
-      )}
-
-      {currentStep === 3 && (
-        <DialysisDetailsForm
-          formData={formData}
-          setFormData={setFormData}
-          errors={errors}
-          setErrors={setErrors}
-        />
-      )}
-
-      {currentStep === 4 && (
-        <HospitalLocationForm
-          formData={formData}
-          setFormData={setFormData}
-          errors={errors}
-          setErrors={setErrors}
-        />
-      )}
-
-      {currentStep === 5 && (
-        <BankDetailsForm
-          formData={formData}
-          setFormData={setFormData}
-          errors={errors}
-          setErrors={setErrors}
-        />
-      )}
-
-      <HospitalFormActions
-        onBack={goBack}
-        onSubmit={handleNext}
-        isLoading={isLoading}
-        isFormValid={isStepValid(currentStep)}
-        currentStep={currentStep}
-        totalSteps={totalSteps}
-      />
-
-      {globalError && <p style={{ color: "red" }}>{globalError}</p>}
+        {globalError && <p style={{ color: "red" }}>{globalError}</p>}
+      </div>
+      </div>
     </div>
   );
 }

@@ -17,8 +17,8 @@ const features = [
   {
     id: 3,
     icon: Stethoscope,
-    title: "Clinician-Backed",
-    desc: "Protocols and care plans developed with leading nephrologists and health specialists.",
+    title: "Easy Appointment Booking",
+    desc: "Book appointments with ease through our intuitive scheduling system.",
   },
 ];
 
@@ -26,7 +26,7 @@ export default function Features() {
   const [hoveredId, setHoveredId] = useState(null);
 
   return (
-    <section id="features" className="w-full px-4 sm:px-6 lg:px-12 py-16 sm:py-20 md:py-28 bg-white">
+    <section id="features" className="w-full px-4 sm:px-6 lg:px-12 py-16 sm:py-20 md:py-28 bg-slate-200">
       <div className="max-w-7xl mx-auto">
         
         {/* Header */}
@@ -55,35 +55,37 @@ export default function Features() {
                 onMouseLeave={() => setHoveredId(null)}
                 className="group h-full cursor-pointer"
               >
-                <div className={`h-full flex flex-col p-8 sm:p-10 rounded-2xl border-2 transition-all duration-300 ${
+                <div className={`h-full flex flex-col p-8 sm:p-10 rounded-2xl transition-all duration-300 ${
                   isHovered
-                    ? "border-teal-500 bg-gradient-to-br from-teal-50 to-blue-50 shadow-xl shadow-teal-100 scale-105"
-                    : "border-gray-200 bg-white shadow-lg hover:shadow-xl hover:border-gray-300"
+                    ? " bg-gray-900 shadow-lg hover:shadow-xl hover:border-gray-300"
+                    : "bg-white shadow-lg hover:shadow-xl hover:border-gray-300"
                 }`}>
                   
                   {/* Icon */}
                   <div className={`w-14 h-14 rounded-xl flex items-center justify-center mb-6 transition-all duration-300 ${
                     isHovered
-                      ? "bg-gradient-to-br from-blue-600 to-teal-500 text-white shadow-lg shadow-blue-200"
-                      : "bg-blue-100 text-blue-600"
+                      ? "bg-white text-slate-900 shadow-lg shadow-blue-200"
+                      : "bg-slate-900 text-white"
                   }`}>
                     <Icon size={32} />
                   </div>
 
                   {/* Title */}
                   <h3 className={`text-xl sm:text-2xl font-bold mb-3 transition-colors duration-300 ${
-                    isHovered ? "text-teal-600" : "text-gray-900"
+                    isHovered ? "text-gray-100" : "text-gray-900"
                   }`}>
                     {feature.title}
                   </h3>
 
                   {/* Description */}
-                  <p className="text-gray-600 text-sm sm:text-base leading-relaxed flex-1 mb-6">
+                  <p className={`text-sm sm:text-base leading-relaxed mb-6 transition-colors duration-300 ${
+                    isHovered ? "text-gray-400" : "text-gray-700"
+                  }`}>
                     {feature.desc}
                   </p>
 
                   {/* Link */}
-                  <div className="flex items-center gap-2 text-blue-600 font-semibold text-sm sm:text-base group-hover:gap-3 transition-all duration-300">
+                  <div className="flex items-center gap-2 text-gray-400 font-semibold text-sm sm:text-base group-hover:gap-3 transition-all duration-300">
                     Learn More
                     <ArrowRight size={18} className="transition-transform group-hover:translate-x-1" />
                   </div>

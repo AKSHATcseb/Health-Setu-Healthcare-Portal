@@ -1,6 +1,12 @@
 import React, { useState } from "react";
 import { MapPin, Loader, AlertCircle } from "lucide-react";
 
+/*
+  LocationDetailsForm (redesigned)
+  - Preserves props and behavior: formData, setFormData, errors, setErrors
+  - Visual overhaul to match dark/charcoal palette used across the app
+  - Responsive, accessible, and keeps all existing logic (no backend changes)
+*/
 export default function LocationDetailsForm({ formData, setFormData, errors, setErrors }) {
   const [locationLoading, setLocationLoading] = useState(false);
   const [locationError, setLocationError] = useState("");
@@ -32,9 +38,10 @@ export default function LocationDetailsForm({ formData, setFormData, errors, set
             latitude,
             longitude,
             // preserve user address if they already typed one; otherwise set a friendly placeholder
-            address: p.address && p.address.trim().length >= 10
-              ? p.address
-              : `Latitude: ${latitude.toFixed(6)}, Longitude: ${longitude.toFixed(6)}`,
+            address:
+              p.address && p.address.trim().length >= 10
+                ? p.address
+                : `Latitude: ${latitude.toFixed(6)}, Longitude: ${longitude.toFixed(6)}`,
           }));
           setLocationLoading(false);
           setLocationError("");
@@ -57,78 +64,97 @@ export default function LocationDetailsForm({ formData, setFormData, errors, set
   };
 
   return (
-    <div className="bg-white rounded-2xl border-2 border-gray-300 p-6 shadow-md hover:shadow-lg hover:border-blue-300 transition-all duration-300">
-      <div className="flex items-center gap-3 mb-6">
-        <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
-          <MapPin size={20} className="text-orange-600" />
+    <section
+      aria-label="Location details"
+      className="rounded-2xl p-6 shadow-lg"
+      style={{ background: "linear-gradient(180deg,#0b1220,#111827)", color: "#f8fafc" }}
+    >
+      <div className="flex items-center gap-3 mb-5">
+        <div
+          className="flex items-center justify-center w-10 h-10 rounded-lg"
+          style={{ background: "linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.03))" }}
+        >
+          <MapPin className="w-5 h-5 text-white" />
         </div>
-        <h2 className="text-lg font-bold text-gray-900">Location Details</h2>
+        <div>
+          <h2 className="text-lg font-semibold text-white">Location details</h2>
+          <p className="text-sm text-slate-300">Provide your address or use device location to autofill</p>
+        </div>
       </div>
 
       <div className="space-y-4">
         {/* Address */}
         <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-2">
-            Address <span className="text-red-500">*</span>
+          <label className="block text-sm font-medium text-slate-200 mb-2">
+            Address <span className="text-rose-400">*</span>
           </label>
           <div className="relative">
-            <MapPin size={18} className="absolute left-3 top-3 text-gray-400" />
+            <div className="absolute left-3 top-3 text-slate-400">
+              <MapPin size={16} />
+            </div>
             <textarea
               placeholder="Enter your full address (street, city, state, postal code)"
               value={formData.address || ""}
               onChange={handleAddressChange}
               rows="3"
-              className={`w-full pl-10 pr-4 py-2.5 rounded-lg border-2 transition-all duration-300 outline-none text-sm resize-none ${
-                errors.address
-                  ? "border-red-500 bg-red-50 focus:border-red-600 focus:ring-2 focus:ring-red-200"
-                  : "border-gray-300 bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
-              }`}
+              className={`w-full pl-10 pr-4 py-2.5 rounded-lg text-sm resize-none transition focus:outline-none
+                ${errors.address ? "border-rose-500 bg-rose-900/10 focus:border-rose-500 focus:ring-rose-200" : "bg-white/6 border-transparent focus:ring-2 focus:ring-sky-600"}`}
+              aria-invalid={Boolean(errors.address)}
+              aria-describedby={errors.address ? "address-error" : undefined}
             />
           </div>
           {errors.address && (
-            <p className="text-xs text-red-600 mt-1">{errors.address}</p>
+            <p id="address-error" className="text-xs text-rose-300 mt-1">{errors.address}</p>
           )}
         </div>
 
-        {/* Fetch Location Button */}
-        <div className="bg-blue-50 rounded-lg p-4 border-2 border-blue-200">
+        {/* Fetch Location Card */}
+        <div className="rounded-lg p-4" style={{ background: "linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01))", border: "1px solid rgba(255,255,255,0.04)" }}>
           <div className="flex items-start gap-3 mb-3">
-            <AlertCircle size={16} className="text-blue-600 flex-shrink-0 mt-0.5" />
-            <p className="text-xs text-blue-700 font-medium">
-              Use your device's location to auto-fill the address
-            </p>
+            <AlertCircle size={16} className="text-sky-300 flex-shrink-0 mt-0.5" />
+            <div>
+              <p className="text-sm text-slate-100 font-medium">Auto-fill with device location</p>
+              <p className="text-xs text-slate-300 mt-1">This will populate your coordinates and a friendly address placeholder.</p>
+            </div>
           </div>
+
           <button
             onClick={handleFetchLocation}
             disabled={locationLoading}
-            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-r from-blue-600 to-teal-600 text-white font-semibold rounded-lg hover:shadow-md transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+            className="w-full inline-flex items-center justify-center gap-3 px-4 py-2.5 rounded-lg font-semibold text-white transition disabled:opacity-60"
+            style={{ background: "linear-gradient(90deg,#0ea5e9 0%, #0369a1 100%)" }}
+            aria-disabled={locationLoading}
+            aria-label="Fetch device location"
           >
             {locationLoading ? (
               <>
-                <Loader size={16} className="animate-spin" />
-                Fetching Location...
+                <Loader className="animate-spin" size={16} />
+                <span className="text-sm">Fetching location...</span>
               </>
             ) : (
               <>
                 <MapPin size={16} />
-                Get Location
+                <span className="text-sm">Use my device location</span>
               </>
             )}
           </button>
         </div>
 
+        {/* Location error */}
         {locationError && (
-          <div className="bg-red-50 rounded-lg p-3 border-2 border-red-200 flex items-start gap-2">
-            <AlertCircle size={14} className="text-red-600 flex-shrink-0 mt-0.5" />
-            <p className="text-xs text-red-700">{locationError}</p>
+          <div className="p-3 rounded-md" style={{ background: "rgba(220,38,38,0.08)", border: "1px solid rgba(220,38,38,0.14)" }}>
+            <div className="flex items-start gap-2">
+              <AlertCircle size={14} className="text-rose-300 flex-shrink-0 mt-0.5" />
+              <p className="text-xs text-rose-200">{locationError}</p>
+            </div>
           </div>
         )}
 
         {/* Coordinates (if fetched) */}
         {formData.latitude && formData.longitude && (
-          <div className="bg-green-50 rounded-lg p-3 border-2 border-green-200">
-            <p className="text-xs text-green-700 font-semibold mb-2">Location Detected ✓</p>
-            <div className="grid grid-cols-2 gap-2 text-xs text-green-700">
+          <div className="p-3 rounded-md" style={{ background: "rgba(16,185,129,0.06)", border: "1px solid rgba(16,185,129,0.12)" }}>
+            <p className="text-xs text-emerald-200 font-semibold mb-2">Location detected ✓</p>
+            <div className="grid grid-cols-2 gap-2 text-xs text-emerald-200">
               <div>
                 <span className="font-semibold">Latitude:</span> {Number(formData.latitude).toFixed(6)}
               </div>
@@ -139,6 +165,6 @@ export default function LocationDetailsForm({ formData, setFormData, errors, set
           </div>
         )}
       </div>
-    </div>
+    </section>
   );
 }

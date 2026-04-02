@@ -3,8 +3,6 @@ import Navbar from "../../components/Navbar";
 import Hero from "../../components/landingPage/Hero";
 import Features from "../../components/landingPage/Features";
 import HowItWorks from "../../components/landingPage/HowItWorks";
-import Testimonials from "../../components/landingPage/Testimonials";
-import CTA from "../../components/landingPage/CTA";
 import Footer from "../../components/Footer";
 
 export default function LandingPage() {
@@ -18,7 +16,13 @@ export default function LandingPage() {
   }, []);
 
   return (
-    <div className="w-full min-h-screen bg-slate-950">
+    <div
+      className="w-full min-h-screen"
+      style={{
+        // very light neutral page background to make dark cards pop
+        background: "linear-gradient(180deg,#fbfcfd 0%, #f8fafc 60%, #ffffff 100%)",
+      }}
+    >
       {/* Navigation */}
       <Navbar />
 
@@ -31,12 +35,6 @@ export default function LandingPage() {
       {/* How It Works Section */}
       <HowItWorks />
 
-      {/* Testimonials Section */}
-      <Testimonials />
-
-      {/* Call to Action Section */}
-      <CTA />
-
       {/* Footer */}
       <Footer />
 
@@ -46,7 +44,7 @@ export default function LandingPage() {
   );
 }
 
-// Scroll to Top Button Component
+// Scroll to Top Button (styling adjusted to match palette)
 function ScrollToTopButton() {
   const [isVisible, setIsVisible] = React.useState(false);
 
@@ -76,22 +74,23 @@ function ScrollToTopButton() {
     isVisible && (
       <button
         onClick={scrollToTop}
-        className="fixed bottom-8 right-8 z-40 p-3 rounded-full bg-gradient-to-r from-purple-600 to-pink-500 text-white shadow-lg hover:shadow-xl hover:shadow-purple-500/50 transition-all duration-300 hover:scale-110 active:scale-95"
         aria-label="Scroll to top"
+        title="Back to top"
+        className="fixed bottom-6 right-6 z-40 p-3 rounded-md shadow-lg transition-transform duration-200"
+        style={{
+          backgroundColor: "#0b1220", // dark tile color
+          color: "#f8fafc",
+          border: "1px solid rgba(255,255,255,0.06)",
+        }}
       >
         <svg
           className="w-6 h-6"
-          fill="none"
-          stroke="currentColor"
+          fill="currentColor"
           viewBox="0 0 24 24"
           xmlns="http://www.w3.org/2000/svg"
+          aria-hidden="true"
         >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M5 10l7-7m0 0l7 7m-7-7v18"
-          />
+          <path d="M12 3l7 9H5l7-9zM5 13h14v6H5v-6z" />
         </svg>
       </button>
     )

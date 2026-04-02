@@ -1,6 +1,13 @@
 import React from "react";
 import { Heart, Calendar } from "lucide-react";
 
+/*
+  MedicalDetailsForm
+  - Preserves props and behavior: formData, setFormData, errors, setErrors
+  - Styling updated to the dark/charcoal professional palette used across the app
+  - Responsive layout: compact on mobile, multi-column on larger screens
+  - No logic/backend changes
+*/
 export default function MedicalDetailsForm({ formData, setFormData, errors, setErrors }) {
   const bloodGroups = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
   const genders = ["male", "female", "other"];
@@ -32,88 +39,109 @@ export default function MedicalDetailsForm({ formData, setFormData, errors, setE
     setErrors((prev) => ({ ...prev, bloodGroup: "" }));
   };
 
+  const inputBase =
+    "w-full rounded-lg px-4 py-2.5 text-slate-100 placeholder-slate-400 transition focus:outline-none focus:ring-2 focus:ring-sky-600";
+
   return (
-    <div className="bg-white rounded-2xl border-2 border-gray-300 p-6 shadow-md hover:shadow-lg hover:border-blue-300 transition-all duration-300">
-      <div className="flex items-center gap-3 mb-6">
-        <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-          <Heart size={20} className="text-green-600" />
+    <section
+      className="rounded-2xl p-6 shadow-lg"
+      style={{ background: "linear-gradient(180deg,#0b1220,#111827)" }}
+      aria-label="Medical details"
+    >
+      <div className="flex items-center gap-3 mb-5">
+        <div
+          className="flex items-center justify-center w-10 h-10 rounded-lg"
+          style={{ background: "linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.03))" }}
+        >
+          <Heart className="w-5 h-5 text-white" />
         </div>
-        <h2 className="text-lg font-bold text-gray-900">Medical Details</h2>
+
+        <div>
+          <h2 className="text-lg font-semibold text-white">Medical details</h2>
+          <p className="text-sm text-slate-300">Provide basic medical information</p>
+        </div>
       </div>
 
-      <div className="space-y-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-20">
         {/* Age */}
-        <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-2">
-            Age <span className="text-red-500">*</span>
+        <div className="md:col-span-1">
+          <label className="block text-sm font-medium text-slate-200 mb-2">
+            Age <span className="text-rose-400">*</span>
           </label>
           <div className="relative">
-            <Calendar size={18} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+            <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-300">
+              <Calendar size={16} />
+            </div>
             <input
               type="number"
-              placeholder="Enter your age"
-              value={formData.age}
+              placeholder="e.g. 45"
+              value={formData.age ?? ""}
               onChange={handleAgeChange}
               min="18"
               max="120"
-              className={`w-full pl-10 pr-4 py-2.5 rounded-lg border-2 transition-all duration-300 outline-none text-sm ${
-                errors.age
-                  ? "border-red-500 bg-red-50 focus:border-red-600 focus:ring-2 focus:ring-red-200"
-                  : "border-gray-300 bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
-              }`}
+              className={`${inputBase} pl-10 bg-white/6 border border-transparent`}
+              aria-label="Age"
             />
           </div>
-          {errors.age && (
-            <p className="text-xs text-red-600 mt-1">{errors.age}</p>
-          )}
+          {errors.age && <p className="text-xs text-rose-400 mt-1">{errors.age}</p>}
         </div>
 
         {/* Gender */}
-        <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-2">
-            Gender <span className="text-red-500">*</span>
+        <div className="md:col-span-1">
+          <label className="block text-sm font-medium text-slate-200 mb-2">
+            Gender <span className="text-rose-400">*</span>
           </label>
-          <div className="grid grid-cols-3 gap-3">
-            {genders.map((g) => (
-              <button
-                key={g}
-                type="button"
-                onClick={() => handleGenderSelect(g)}
-                className={`py-2.5 px-4 rounded-lg font-semibold text-sm border-2 transition-all duration-300 transform hover:scale-105 ${
-                  formData.gender === g
-                    ? "bg-gradient-to-r from-blue-500 to-teal-500 text-white border-blue-600 shadow-md"
-                    : "bg-gray-100 text-gray-800 border-gray-400 hover:bg-gray-200 hover:border-blue-400"
-                }`}
-              >
-                {g.charAt(0).toUpperCase() + g.slice(1)}
-              </button>
-            ))}
+
+          <div className="flex gap-2">
+            {genders.map((g) => {
+              const active = formData.gender === g;
+              return (
+                <button
+                  key={g}
+                  type="button"
+                  onClick={() => handleGenderSelect(g)}
+                  className={`flex-1 py-2 rounded-full text-sm transition
+                    ${active
+                      ? "bg-sky-600 text-white shadow"
+                      : " text-slate-200 hover:bg-white/10"}
+                  `}
+                  aria-pressed={active}
+                >
+                  {g.charAt(0).toUpperCase() + g.slice(1)}
+                </button>
+              );
+            })}
           </div>
         </div>
 
         {/* Blood Group */}
-        <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-2">
-            Blood Group <span className="text-red-500">*</span>
+        <div className="md:col-span-1">
+          <label className="block text-sm font-medium text-slate-200 mb-2">
+            Blood group <span className="text-rose-400">*</span>
           </label>
-          <div className="grid grid-cols-4 sm:grid-cols-8 gap-2">
-            {bloodGroups.map((group) => (
-              <button
-                key={group}
-                type="button"
-                onClick={() => handleBloodGroupSelect(group)}
-                className={`py-2.5 px-3 rounded-lg font-bold text-sm border-2 transition-all duration-300 transform hover:scale-105 ${
-                  formData.bloodGroup === group
-                    ? "bg-gradient-to-r from-red-500 to-pink-500 text-white border-red-600 shadow-md"
-                    : "bg-gray-100 text-gray-800 border-gray-400 hover:bg-gray-200 hover:border-red-400"
-                }`}
-              >
-                {group}
-              </button>
-            ))}
+
+          <div className="grid grid-cols-4 gap-2">
+            {bloodGroups.map((group) => {
+              const active = formData.bloodGroup === group;
+              return (
+                <button
+                  key={group}
+                  type="button"
+                  onClick={() => handleBloodGroupSelect(group)}
+                  className={`py-2 rounded-full text-sm transition
+                    ${active
+                      ? "bg-sky-600 text-white shadow"
+                      : "text-slate-200 hover:bg-white/10"}
+                  `}
+                  aria-pressed={active}
+                >
+                  {group}
+                </button>
+              );
+            })}
           </div>
         </div>
       </div>
-    </div>
+    </section>
   );
 }

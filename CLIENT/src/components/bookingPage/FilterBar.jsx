@@ -1,190 +1,243 @@
-import React, { useState } from "react";
-import { Calendar, Clock, MapPin, DollarSign, Star, Filter, Zap, ChevronDown } from "lucide-react";
+import React, { useEffect, useRef, useState } from "react";
+import { Calendar, MapPin, DollarSign, Star } from "lucide-react";
 
+/**
+ * FilterBar (foreground-only styling)
+ * - Root wrapper avoids changing page background
+ * - Row1: date only (today..today+7)
+ * - Row2: master checkbox toggles filters (cannot enable without valid date)
+ * - Row3: filters (distance, price, rating) + Reset/Apply
+ */
 export default function FilterBar({
+  filtersEnabled,
+  setFiltersEnabled,
   selectedDate,
   setSelectedDate,
-  selectedTime,
-  setSelectedTime,
-  distanceFilter,
+  distanceFilter = { max: 0 },
   setDistanceFilter,
-  priceFilter,
+  priceFilter = { max: 0 },
   setPriceFilter,
   ratingFilter,
   setRatingFilter,
-  showAdvancedFilter,
-  setShowAdvancedFilter,
-  timeSlots,
+  onApplyFilters,
 }) {
-  // Toggle to enable/disable distance, price and rating filters
-  const [applyMainFilters, setApplyMainFilters] = useState(true);
+  const [dateError, setDateError] = useState("");
+  const [applying, setApplying] = useState(false);
+  const dateRef = useRef(null);
+
+  const formatLocalDate = (d) => {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    return `${y}-${m}-${day}`;
+  };
+
+  const today = new Date();
+  const minDate = formatLocalDate(today);
+  const maxDateObj = new Date(today);
+  maxDateObj.setDate(maxDateObj.getDate() + 7);
+  const maxDate = formatLocalDate(maxDateObj);
+
+  useEffect(() => {
+    if (selectedDate && selectedDate >= minDate && selectedDate <= maxDate) {
+      setDateError("");
+    }
+  }, [selectedDate, minDate, maxDate]);
+
+  const isDateValid = (d) => typeof d === "string" && d >= minDate && d <= maxDate;
+
+  const tryEnableFilters = () => {
+    if (!selectedDate) {
+      setDateError("Select a date before enabling filters.");
+      dateRef.current?.focus();
+      return false;
+    }
+    if (!isDateValid(selectedDate)) {
+      setDateError("Select a date within the next 7 days.");
+      dateRef.current?.focus();
+      return false;
+    }
+    setFiltersEnabled(true);
+    return true;
+  };
+
+  const handleMasterCheckboxChange = (checked) => {
+    if (checked) tryEnableFilters();
+    else setFiltersEnabled(false);
+  };
+
+  const handleDateChange = (e) => {
+  const val = e.target.value;
+
+  // console.log("📅 Selected Date:", val); 
+
+  setSelectedDate?.(val);
+
+  if (!val) setDateError("Please select a date.");
+  else if (!isDateValid(val)) setDateError("Please select a date within the next 7 days.");
+  else setDateError("");
+};
+
+  const handleApply = () => {
+    if (!selectedDate || !isDateValid(selectedDate)) {
+      setDateError("Please select a date within the next 7 days.");
+      dateRef.current?.focus();
+      return;
+    }
+    setApplying(true);
+    onApplyFilters?.({
+      date: selectedDate,
+      time: selectedTime,
+      distance: distanceFilter,
+      price: priceFilter,
+      rating: ratingFilter,
+    });
+    setTimeout(() => setApplying(false), 300);
+  };
+
+  const handleReset = () => {
+    setDistanceFilter?.({ ...distanceFilter, max: 0 });
+    setPriceFilter?.({ ...priceFilter, max: 0 });
+    setRatingFilter?.(0);
+  };
 
   return (
-    <div className="w-full px-4 sm:px-6 lg:px-12 py-8 bg-white border-b-2 border-gray-300">
-      <div className="max-w-7xl mx-auto space-y-6">
-        
-        {/* Primary Filters - Date & Time */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          
-          {/* Date Selection */}
-          <div className="flex flex-col">
-            <label className="block text-sm font-bold text-gray-900 mb-2 flex items-center gap-2">
-              <Calendar size={18} className="text-blue-600" />
-              Select Date
-            </label>
-            <input
-              type="date"
-              value={selectedDate}
-              onChange={(e) => setSelectedDate(e.target.value)}
-              className="px-4 py-3 rounded-xl border-2 border-gray-300 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent font-semibold text-gray-900 placeholder-gray-400 transition-all duration-300 hover:border-blue-400"
-            />
-          </div>
+    // root has no bg class so page background is preserved
+    <div className="w-full px-4 py-5 bg-slate-200">
+      <div className="max-w-7xl mx-auto space-y-4">
+        {/* Row 1: Date only */}
+        <div>
+          <label htmlFor="appointment-date" className="block text-sm font-semibold text-gray-900 mb-2 flex items-center gap-2">
+            <Calendar size={18} className="text-cyan-600" />
+            Select Date <span className="text-red-500">*</span>
+          </label>
 
-          {/* Time Selection */}
-          <div className="flex flex-col">
-            <label className="block text-sm font-bold text-gray-900 mb-2 flex items-center gap-2">
-              <Clock size={18} className="text-teal-600" />
-              Select Time
-            </label>
-            <select
-              value={selectedTime}
-              onChange={(e) => setSelectedTime(e.target.value)}
-              className="px-4 py-3 rounded-xl border-2 border-gray-300 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent font-semibold text-gray-900 transition-all duration-300 hover:border-blue-400 appearance-none cursor-pointer"
-            >
-              <option value="">Choose a time slot</option>
-              {timeSlots.map(time => (
-                <option key={time} value={time}>{time}</option>
-              ))}
-            </select>
-          </div>
+          <input
+            id="appointment-date"
+            ref={dateRef}
+            type="date"
+            value={selectedDate ?? ""}
+            onChange={handleDateChange}
+            min={minDate}
+            max={maxDate}
+            className={`w-full md:max-w-xs px-3 py-2 rounded-lg border ${
+              dateError ? "border-red-500" : "border-gray-300"
+            } bg-white/90 text-gray-900 focus:outline-none focus:ring-2 focus:ring-cyan-300`}
+            aria-required="true"
+            aria-invalid={!!dateError}
+          />
+          <p className="mt-2 text-xs text-gray-500">Allowed: {minDate} — {maxDate}</p>
+          {dateError && <p className="mt-2 text-sm text-red-600" role="alert">{dateError}</p>}
         </div>
 
-        {/* Filters Row - Distance, Price, Rating + Toggle & Advanced Button */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-center">
-          {/* Distance Filter */}
-          <div className={`flex flex-col ${applyMainFilters ? "" : "opacity-60"}`}>
-            <label className="block text-sm font-bold text-gray-900 mb-2 flex items-center gap-2">
-              <MapPin size={18} className="text-orange-600" />
+        {/* Row 2: Master checkbox */}
+        <div className="flex items-center gap-4">
+          <label className="inline-flex items-center gap-2 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={filtersEnabled}
+              onChange={(e) => handleMasterCheckboxChange(e.target.checked)}
+              className="w-4 h-4 accent-cyan-500"
+              aria-checked={filtersEnabled}
+            />
+            <span className="text-sm font-medium text-gray-900">Enable Filters</span>
+          </label>
+    </div>
+        {/* Row 3: Filters (cards/controls styled as foreground) */}
+        <fieldset
+          className={`grid grid-cols-1 md:grid-cols-4 gap-4 p-4 rounded-lg ${filtersEnabled ? "bg-white/95" : "bg-white/70 opacity-60"}`}
+          aria-disabled={!filtersEnabled}
+        >
+          <legend className="sr-only">Filters</legend>
+
+          {/* Distance */}
+          <div className="flex flex-col">
+            <label className="text-sm font-semibold text-gray-900 mb-2 flex items-center gap-2">
+              <MapPin size={16} className="text-cyan-600" />
               Max Distance
             </label>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3">
               <input
                 type="range"
                 min="0"
-                max="50"
-                value={distanceFilter.max}
-                onChange={(e) => setDistanceFilter({ ...distanceFilter, max: parseInt(e.target.value) })}
-                disabled={!applyMainFilters}
-                className={`flex-1 h-3 bg-gray-300 rounded-lg appearance-none cursor-pointer accent-orange-600 ${!applyMainFilters ? "pointer-events-none" : ""}`}
+                max="2000"
+                value={distanceFilter?.max ?? 0}
+                onChange={(e) => setDistanceFilter?.({ ...distanceFilter, max: parseInt(e.target.value, 10) })}
+                disabled={!filtersEnabled}
+                className="flex-1 h-3 accent-slate-800"
+                aria-disabled={!filtersEnabled}
               />
-              <span className="font-bold text-gray-900 whitespace-nowrap text-sm">{distanceFilter.max} km</span>
+              <span className="font-semibold text-gray-900 text-sm">{distanceFilter?.max ?? 0} km</span>
             </div>
           </div>
 
-          {/* Price Filter */}
-          <div className={`flex flex-col ${applyMainFilters ? "" : "opacity-60"}`}>
-            <label className="block text-sm font-bold text-gray-900 mb-2 flex items-center gap-2">
-              <DollarSign size={18} className="text-green-600" />
+          {/* Price */}
+          <div className="flex flex-col">
+            <label className="text-sm font-semibold text-gray-900 mb-2 flex items-center gap-2">
+              <DollarSign size={16} className="text-cyan-600" />
               Max Price
             </label>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3">
               <input
                 type="range"
                 min="0"
                 max="5000"
-                value={priceFilter.max}
-                onChange={(e) => setPriceFilter({ ...priceFilter, max: parseInt(e.target.value) })}
-                disabled={!applyMainFilters}
-                className={`flex-1 h-3 bg-gray-300 rounded-lg appearance-none cursor-pointer accent-green-600 ${!applyMainFilters ? "pointer-events-none" : ""}`}
+                value={priceFilter?.max ?? 0}
+                onChange={(e) => setPriceFilter?.({ ...priceFilter, max: parseInt(e.target.value, 10) })}
+                disabled={!filtersEnabled}
+                className="flex-1 h-3 accent-slate-800"
+                aria-disabled={!filtersEnabled}
               />
-              <span className="font-bold text-gray-900 whitespace-nowrap text-sm">₹{priceFilter.max}</span>
+              <span className="font-semibold text-gray-900 text-sm">₹{priceFilter?.max ?? 0}</span>
             </div>
           </div>
 
-          {/* Rating Filter */}
-          <div className={`flex flex-col ${applyMainFilters ? "" : "opacity-60"}`}>
-            <label className="block text-sm font-bold text-gray-900 mb-3 flex items-center gap-2">
-              <Star size={18} className="text-yellow-500" />
+          {/* Rating */}
+          <div className="flex flex-col">
+            <label className="text-sm font-semibold text-gray-900 mb-2 flex items-center gap-2">
+              <Star size={16} className="text-slate-800" />
               Minimum Rating
             </label>
             <div className="flex gap-2 flex-wrap">
-              {[0, 3.5, 4, 4.5, 4.8].map(rating => (
-                <button
-                  key={rating}
-                  onClick={() => {
-                    if (!applyMainFilters) return;
-                    setRatingFilter(rating);
-                  }}
-                  disabled={!applyMainFilters}
-                  className={`px-4 py-2 rounded-lg font-bold transition-all duration-300 transform hover:scale-105 ${
-                    ratingFilter === rating && applyMainFilters
-                      ? "bg-gradient-to-r from-yellow-400 to-orange-500 text-white shadow-lg"
-                      : "bg-gray-100 text-gray-800 hover:bg-gray-200 border border-gray-300 hover:border-gray-400"
-                  } ${!applyMainFilters ? "cursor-not-allowed pointer-events-none" : ""}`}
-                >
-                  {rating === 0 ? "All" : `${rating}+`}
-                </button>
-              ))}
+              {[0, 3.5, 4, 4.5, 4.8].map((r) => {
+                const active = ratingFilter === r && filtersEnabled;
+                return (
+                  <button
+                    key={r}
+                    onClick={() => { if (!filtersEnabled) return; setRatingFilter?.(r); }}
+                    disabled={!filtersEnabled}
+                    aria-pressed={active}
+                    className={`px-3 py-2 rounded-md text-sm font-semibold transition ${
+                      active ? "bg-slate-800 text-white shadow" : "bg-gray-100 text-gray-900"
+                    } ${!filtersEnabled ? "opacity-60" : "hover:scale-[1.02]"}`}
+                  >
+                    {r === 0 ? "All" : `${r}+`}
+                  </button>
+                );
+              })}
             </div>
           </div>
 
-          {/* Toggle + Advanced Button */}
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-end gap-3">
-            <button
-              onClick={() => setApplyMainFilters(prev => !prev)}
-              className={`px-4 py-2 rounded-lg font-bold flex items-center gap-2 transition-all duration-200 ${
-                applyMainFilters ? "bg-green-600 text-white hover:bg-green-700" : "bg-gray-200 text-gray-800 hover:bg-gray-300"
-              }`}
-              aria-pressed={applyMainFilters}
-              title="Toggle applying distance, price and rating filters"
-            >
-              <Filter size={16} />
-              {applyMainFilters ? "Filters On" : "Filters Off"}
-            </button>
-
-            <button
-              onClick={() => setShowAdvancedFilter(!showAdvancedFilter)}
-              className="px-6 py-3 rounded-xl font-bold text-white bg-gradient-to-r from-blue-600 to-teal-500 hover:shadow-xl hover:shadow-blue-300 transition-all duration-300 flex items-center justify-center gap-2 hover:scale-105 active:scale-95 whitespace-nowrap"
-            >
-              <Zap size={18} />
-              {showAdvancedFilter ? "Hide Advanced" : "Advanced Filters"}
-              <ChevronDown size={18} className={`transition-transform ${showAdvancedFilter ? "rotate-180" : ""}`} />
-            </button>
-          </div>
-        </div>
-
-        {/* Advanced Filters - Expandable */}
-        {showAdvancedFilter && (
-          <div className="bg-blue-50 rounded-2xl border-2 border-blue-300 p-6 animate-in fade-in slide-in-from-top-2 duration-300">
-            <h3 className="text-lg font-bold text-gray-900 mb-4">Advanced Filters</h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              <label className="flex items-center gap-3 cursor-pointer hover:bg-blue-100 p-3 rounded-lg transition-colors border-2 border-gray-300 hover:border-blue-400">
-                <input type="checkbox" className="w-5 h-5 rounded accent-blue-600 cursor-pointer" />
-                <span className="text-sm font-semibold text-gray-800">Government Hospital</span>
-              </label>
-              <label className="flex items-center gap-3 cursor-pointer hover:bg-blue-100 p-3 rounded-lg transition-colors border-2 border-gray-300 hover:border-blue-400">
-                <input type="checkbox" className="w-5 h-5 rounded accent-blue-600 cursor-pointer" />
-                <span className="text-sm font-semibold text-gray-800">Emergency Services</span>
-              </label>
-              <label className="flex items-center gap-3 cursor-pointer hover:bg-blue-100 p-3 rounded-lg transition-colors border-2 border-gray-300 hover:border-blue-400">
-                <input type="checkbox" className="w-5 h-5 rounded accent-blue-600 cursor-pointer" />
-                <span className="text-sm font-semibold text-gray-800">Experienced Staff</span>
-              </label>
-              <label className="flex items-center gap-3 cursor-pointer hover:bg-blue-100 p-3 rounded-lg transition-colors border-2 border-gray-300 hover:border-blue-400">
-                <input type="checkbox" className="w-5 h-5 rounded accent-blue-600 cursor-pointer" />
-                <span className="text-sm font-semibold text-gray-800">New Equipment</span>
-              </label>
-              <label className="flex items-center gap-3 cursor-pointer hover:bg-blue-100 p-3 rounded-lg transition-colors border-2 border-gray-300 hover:border-blue-400">
-                <input type="checkbox" className="w-5 h-5 rounded accent-blue-600 cursor-pointer" />
-                <span className="text-sm font-semibold text-gray-800">Insurance Accepted</span>
-              </label>
-              <label className="flex items-center gap-3 cursor-pointer hover:bg-blue-100 p-3 rounded-lg transition-colors border-2 border-gray-300 hover:border-blue-400">
-                <input type="checkbox" className="w-5 h-5 rounded accent-blue-600 cursor-pointer" />
-                <span className="text-sm font-semibold text-gray-800">Nutritionist Available</span>
-              </label>
+          {/* Controls */}
+          <div className="flex flex-col justify-between">
+            <div className="flex gap-2 justify-end mt-3">
+              <button
+                onClick={handleReset}
+                disabled={!filtersEnabled}
+                className="px-3 py-2 rounded-md bg-white text-gray-900 border border-gray-200 disabled:opacity-50"
+              >
+                Reset
+              </button>
+              <button
+                onClick={handleApply}
+                disabled={!isDateValid(selectedDate) || applying}
+                className="px-4 py-2 rounded-md bg-slate-800 text-gray-200 font-semibold disabled:opacity-60"
+              >
+                {applying ? "Applying..." : filtersEnabled ? "Apply Filters" : "Apply Date"}
+              </button>
             </div>
           </div>
-        )}
+        </fieldset>
       </div>
     </div>
   );

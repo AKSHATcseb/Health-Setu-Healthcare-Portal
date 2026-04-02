@@ -1,7 +1,8 @@
 import React, { useState } from "react";
-import { Mail, Lock, Eye, EyeOff, ArrowRight, Heart } from "lucide-react";
+import { Mail, Lock, Eye, EyeOff, ArrowRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import api, { setAuthToken } from "../../services/api";
+import { HeartPulseBadge, ShieldLock } from "../CustomIcons";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -11,7 +12,7 @@ export default function Login() {
   const [rememberMe, setRememberMe] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [info, setInfo] = useState(""); // for non-error messages
+  const [info, setInfo] = useState("");
 
   const clearStoredToken = () => {
     sessionStorage.removeItem("token");
@@ -19,82 +20,78 @@ export default function Login() {
     setAuthToken(null);
   };
 
-const handleSubmit = async (e) => {
-  e.preventDefault();
-  setError("");
-  setInfo("");
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError("");
+    setInfo("");
 
-  if (!email || !password) {
-    setError("Please fill in all fields");
-    return;
-  }
-
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    setError("Please enter a valid email address");
-    return;
-  }
-
-  try {
-    setLoading(true);
-
-    const { data } = await api.post("/api/auth/login", {
-      email,
-      password,
-    });
-    console.log("Login response:", data);
-
-    if (!data) {
-      throw new Error("Invalid server response from login");
+    if (!email || !password) {
+      setError("Please fill in all fields");
+      return;
     }
 
-    // ✅ Store token
-    if (data?.token) {
-      const token = data.token;
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setError("Please enter a valid email address");
+      return;
+    }
 
-      if (rememberMe) {
-        localStorage.setItem("token", token);
-        sessionStorage.removeItem("token");
-      } else {
-        sessionStorage.setItem("token", token);
-        localStorage.removeItem("token");
+    try {
+      setLoading(true);
+
+      const { data } = await api.post("/api/auth/login", {
+        email,
+        password,
+      });
+
+      if (!data) {
+        throw new Error("Invalid server response from login");
       }
 
-      setAuthToken(token);
+      // Store token
+      if (data?.token) {
+        const token = data.token;
+
+        if (rememberMe) {
+          localStorage.setItem("token", token);
+          sessionStorage.removeItem("token");
+        } else {
+          sessionStorage.setItem("token", token);
+          localStorage.removeItem("token");
+        }
+
+        setAuthToken(token);
+      }
+
+      const role = data?.user?.role;
+      const userId = data?.user?._id || data?.user?.id;
+
+      if (!userId) {
+        throw new Error("User ID not found");
+      }
+
+      if (role === "patient") {
+        navigate(`/patient/dashboard/${userId}`, { replace: true });
+        return;
+      }
+
+      if (role === "hospital_admin") {
+        navigate(`/center/dashboard/${userId}`, { replace: true });
+        return;
+      }
+
+      if (role === "admin") {
+        navigate(`/admin/dashboard/${userId}`, { replace: true });
+        return;
+      }
+
+      // fallback
+      navigate("/", { replace: true });
+    } catch (err) {
+      setError(err.response?.data?.message || err.message || "Login failed");
+    } finally {
+      setLoading(false);
     }
-
-    const role = data?.user?.role;
-    const userId = data?.user?._id || data?.user?.id;
-
-    // ❗ Ensure we have userId
-    if (!userId) {
-      throw new Error("User ID not found");
-    }
-
-    // ✅ ALWAYS redirect to dashboard
-    if (role === "patient") {
-      navigate(`/patient/dashboard/${userId}`, { replace: true });
-      return;
-    }
-
-    if (role === "hospital_admin") {
-      navigate(`/center/dashboard/${userId}`, { replace: true });
-      return;
-    }
-
-    if (role === "admin") {
-      navigate(`/admin/dashboard/${userId}`, { replace: true });
-      return;
-    }
-
-    // fallback
-    navigate("/", { replace: true });
-
-  } catch (err) {
-    setError(err.response?.data?.message || err.message || "Login failed");
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
   const handleForgotPassword = (e) => {
     e.preventDefault();
@@ -109,172 +106,203 @@ const handleSubmit = async (e) => {
   };
 
   return (
-    <div className="w-full min-h-screen bg-gradient-to-br from-blue-50 via-white to-teal-50 flex flex-col">
-      {/* Navbar */}
-      <nav className="w-full bg-white border-b border-gray-100 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-20 py-4">
-          <div className="flex items-center justify-between">
+    <div
+      className="w-full min-h-screen flex flex-col"
+    >
+      {/* Header */}
+      <header className="w-full px-10 py-10 bg-slate-200">
+        <div className=" sm:px-6 lg:px-12 flex items-center justify-between bg-slate-200">
+          <div
+            className="flex items-center gap-3 cursor-pointer"
+            onClick={() => navigate("/")}
+            role="button"
+            tabIndex={0}
+            aria-label="HealthSetu home"
+          >
             <div
-              className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity"
-              onClick={() => navigate("/")}
+              className="w-11 h-11 rounded-lg flex items-center justify-center shadow-sm"
+              style={{ background: "linear-gradient(180deg,#0b1220,#111827)" }}
             >
-              <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-teal-500 rounded-full flex items-center justify-center shadow-md">
-                <Heart size={20} className="text-white fill-white" />
-              </div>
-              <h1 className="font-bold text-xl bg-gradient-to-r from-blue-600 to-teal-600 bg-clip-text text-transparent">
-                HealthSetu
-              </h1>
+              <HeartPulseBadge className="w-6 h-6 text-white" />
             </div>
+            <div className="hidden sm:block">
+              <h1 className="font-extrabold text-slate-900 text-lg">HealthSetu</h1>
+              <p className="text-xs text-slate-500 -mt-0.5">Care for Patients & Families</p>
+            </div>
+          </div>
 
-            <button
-              onClick={() => navigate("/")}
-              className="text-gray-700 font-medium hover:text-blue-600 transition-colors text-sm sm:text-base"
-            >
+          <div className="hidden sm:flex items-center gap-4">
+            <button onClick={() => navigate("/")} className="text-sm text-slate-700 hover:text-slate-900 transition">
               Back to Home
+            </button>
+            <button
+              onClick={() => navigate("/register")}
+              className="px-3 py-2 rounded-md bg-[#0b1220] text-white text-sm font-semibold shadow-sm hover:brightness-105 transition"
+            >
+              Create Account
+            </button>
+          </div>
+
+          {/* Mobile action: compact */}
+          <div className="sm:hidden">
+            <button onClick={() => navigate("/register")} className="text-sm text-slate-700 px-2 py-1">
+              Sign up
             </button>
           </div>
         </div>
-      </nav>
+      </header>
 
-      {/* Main Content */}
-      <div className="flex-1 flex items-center justify-center px-4 sm:px-6 lg:px-20 py-12 sm:py-16">
-        <div className="w-full max-w-md">
-          {/* Login Card */}
-          <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-8 sm:p-10">
-            {/* Header */}
-            <div className="text-center mb-8">
-              <h3 className="text-3xl font-bold text-gray-900 mb-2">Sign In</h3>
-              <p className="text-gray-600 text-sm sm:text-base">
-                Enter your credentials to access your account
-              </p>
-            </div>
-
-            {/* Info Message */}
-            {info && (
-              <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                <p className="text-blue-700 text-sm font-medium">{info}</p>
-              </div>
-            )}
-
-            {/* Error Message */}
-            {error && (
-              <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-                <p className="text-red-700 text-sm font-medium">{error}</p>
-              </div>
-            )}
-
-            {/* Form */}
-            <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Email Field */}
-              <div>
-                <label htmlFor="email" className="block text-sm font-semibold text-gray-900 mb-2">
-                  Email Address
-                </label>
-                <div className="relative">
-                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
-                  <input
-                    id="email"
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="you@example.com"
-                    className="w-full pl-12 pr-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 bg-gray-50 focus:bg-white text-gray-900 placeholder-gray-400"
-                  />
+      {/* Main: center the card */}
+      <main className="flex-1 flex items-center justify-center px-4 sm:px-6 lg:px-12 py-12 bg-slate-200">
+        <div className="w-full ">
+          <div className="mx-auto"
+               style={{ maxWidth: 720 /* ensures card never too wide on large screens */ }}>
+            <div
+              className="mx-auto rounded-2xl p-6 sm:p-8 md:p-10 shadow-2xl"
+              style={{ background: "linear-gradient(180deg,#0b1220 0%, #111827 100%)", color: "#f8fafc" }}
+              aria-labelledby="login-heading"
+            >
+              <div className="text-center mb-6">
+                <div
+                  className="inline-flex items-center justify-center w-12 h-12 rounded-lg mx-auto mb-3"
+                  style={{ background: "linear-gradient(180deg,#111827,#0b1220)" }}
+                >
+                  <HeartPulseBadge className="w-6 h-6 text-white" />
                 </div>
+                <h3 id="login-heading" className="text-2xl font-extrabold">Sign in</h3>
+                <p className="text-sm text-slate-300 mt-2">Enter your credentials to access your account</p>
               </div>
 
-              {/* Password Field */}
-              <div>
-                <label htmlFor="password" className="block text-sm font-semibold text-gray-900 mb-2">
-                  Password
-                </label>
-                <div className="relative">
-                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
-                  <input
-                    id="password"
-                    type={showPassword ? "text" : "password"}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="••••••••"
-                    className="w-full pl-12 pr-12 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 bg-gray-50 focus:bg-white text-gray-900 placeholder-gray-400"
-                  />
+              {/* Info & Error (accessible) */}
+              {info && (
+                <div className="mb-4 p-3 rounded-md" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.04)" }} role="status" aria-live="polite">
+                  <p className="text-sm text-slate-200 font-medium">{info}</p>
+                </div>
+              )}
+
+              {error && (
+                <div className="mb-4 p-3 rounded-md" style={{ background: "rgba(220,38,38,0.08)", border: "1px solid rgba(220,38,38,0.14)" }} role="alert" aria-live="assertive">
+                  <p className="text-sm text-red-300 font-medium">{error}</p>
+                </div>
+              )}
+
+              <form onSubmit={handleSubmit} className="space-y-4">
+                {/* Email */}
+                <div>
+                  <label htmlFor="email" className="block text-sm font-medium mb-2 text-slate-200">Email</label>
+                  <div className="relative">
+                    <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
+                      <Mail size={18} />
+                    </div>
+                    <input
+                      id="email"
+                      name="email"
+                      type="email"
+                      inputMode="email"
+                      autoComplete="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="you@example.com"
+                      className="w-full pl-12 pr-4 py-3 rounded-lg bg-white/4 text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-600 transition"
+                      aria-label="Email address"
+                    />
+                  </div>
+                </div>
+
+                {/* Password */}
+                <div>
+                  <label htmlFor="password" className="block text-sm font-medium mb-2 text-slate-200">Password</label>
+                  <div className="relative">
+                    <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
+                      <Lock size={18} />
+                    </div>
+                    <input
+                      id="password"
+                      name="password"
+                      type={showPassword ? "text" : "password"}
+                      autoComplete="current-password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="••••••••"
+                      className="w-full pl-12 pr-12 py-3 rounded-lg bg-white/4 text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-600 transition"
+                      aria-label="Password"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-300 hover:text-slate-100 transition"
+                      aria-label={showPassword ? "Hide password" : "Show password"}
+                    >
+                      {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </button>
+                  </div>
+                </div>
+
+                {/* Remember + forgot */}
+                <div className="flex items-center justify-between">
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={rememberMe}
+                      onChange={(e) => setRememberMe(e.target.checked)}
+                      className="w-4 h-4 rounded border-slate-500 bg-white/2 text-sky-600 focus:ring-sky-500"
+                    />
+                    <span className="text-sm text-slate-300">Remember me</span>
+                  </label>
+
                   <button
                     type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                    onClick={handleForgotPassword}
+                    className="text-sm text-sky-300 hover:text-sky-200 font-medium"
                   >
-                    {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                    Forgot password?
                   </button>
                 </div>
-              </div>
 
-              {/* Remember Me & Forgot Password */}
-              <div className="flex items-center justify-between">
-                <label className="flex items-center gap-2 cursor-pointer group">
-                  <input
-                    type="checkbox"
-                    checked={rememberMe}
-                    onChange={(e) => setRememberMe(e.target.checked)}
-                    className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
-                  />
-                  <span className="text-sm text-gray-600 group-hover:text-gray-900 transition-colors">
-                    Remember me
-                  </span>
-                </label>
+                {/* Submit */}
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full py-3 md:py-3.5 bg-gradient-to-r from-blue-600 to-blue-500 text-white rounded-lg font-semibold text-base hover:shadow-lg transform hover:-translate-y-0.5 transition disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-3"
+                  aria-label="Sign in"
+                >
+                  {loading ? (
+                    <>
+                      <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                      Signing in...
+                    </>
+                  ) : (
+                    <>
+                      Sign In
+                      <ArrowRight size={18} />
+                    </>
+                  )}
+                </button>
+              </form>
 
+              <p className="text-center text-sm mt-5 text-slate-300">
+                Don't have an account?{" "}
                 <button
                   type="button"
-                  onClick={handleForgotPassword}
-                  className="text-sm text-blue-600 hover:text-blue-700 font-medium transition-colors"
+                  onClick={() => navigate("/register")}
+                  className="text-sky-300 hover:text-sky-200 font-semibold"
                 >
-                  Forgot password?
+                  Create one
                 </button>
-              </div>
+              </p>
 
-              {/* Submit Button */}
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full py-3 bg-gradient-to-r from-blue-600 to-teal-500 text-white rounded-lg font-bold text-base hover:shadow-lg hover:shadow-blue-200 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:scale-100 transition-all duration-300 flex items-center justify-center gap-2"
-              >
-                {loading ? (
-                  <>
-                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    Signing in...
-                  </>
-                ) : (
-                  <>
-                    Sign In
-                    <ArrowRight size={20} />
-                  </>
-                )}
-              </button>
-            </form>
-
-            {/* Sign Up Link */}
-            <p className="text-center text-gray-600 text-sm mt-5">
-              Don't have an account?{" "}
-              <button
-                type="button"
-                onClick={() => navigate("/register")}
-                className="text-blue-600 hover:text-blue-700 font-semibold transition-colors"
-              >
-                Sign up here
-              </button>
-            </p>
+              <p className="text-center text-xs text-slate-500 mt-4">
+                By signing in you agree to our <button className="text-slate-300 underline">Terms</button> and <button className="text-slate-300 underline">Privacy</button>.
+              </p>
+            </div>
           </div>
         </div>
-      </div>
+      </main>
 
       {/* Footer */}
-      <footer className="border-t border-gray-200 bg-white py-6 px-4 sm:px-6 lg:px-20">
-        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4 text-gray-600 text-xs sm:text-sm">
-          <p>&copy; 2024 HealthSetu. All rights reserved.</p>
-          <div className="flex gap-6">
-            <a href="#" className="hover:text-blue-600 transition-colors">Privacy Policy</a>
-            <a href="#" className="hover:text-blue-600 transition-colors">Terms of Service</a>
-            <a href="#" className="hover:text-blue-600 transition-colors">Help Center</a>
-          </div>
+      <footer className="w-full border-t border-white/6 bg-slate-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 py-6 text-center text-xs text-slate-500">
+          © {new Date().getFullYear()} HealthSetu. All rights reserved.
         </div>
       </footer>
     </div>

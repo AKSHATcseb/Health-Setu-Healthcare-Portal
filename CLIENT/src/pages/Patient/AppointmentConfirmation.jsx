@@ -1,134 +1,146 @@
-import React, { useState } from "react";
-import AppointmentSummary from "../../components/appointmentConfirmationPage/AppointmentSummary";
+import React, { useState, useEffect } from "react";
+import SlotSelector from "../../components/appointmentConfirmationPage/SlotSelector";
 import PatientInfo from "../../components/appointmentConfirmationPage/PatientInfo";
 import HospitalDetails from "../../components/appointmentConfirmationPage/HospitalDetails";
-import PaymentBreakdown from "../../components/appointmentConfirmationPage/PaymentBreakdown";
 import PaymentMethod from "../../components/appointmentConfirmationPage/PaymentMethod";
+import AppointmentSummary from "../../components/appointmentConfirmationPage/AppointmentSummary";
 import ConfirmationButtons from "../../components/appointmentConfirmationPage/ConfirmationButtons";
+import { useLocation, useParams } from "react-router-dom";
 import { CheckCircle } from "lucide-react";
+import api from "../../services/api";
 
 export default function AppointmentConfirmation() {
+  const location = useLocation();
+  const { hospital, appointment } = location.state || {};
+
+  const { patientId, id } = useParams();
+
+  const [patientData, setPatientData] = useState(null);
+  const [hospitalData, setHospitalData] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  const [selectedSlot, setSelectedSlot] = useState(null);
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState("card");
   const [agreeToTerms, setAgreeToTerms] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [confirmationStep, setConfirmationStep] = useState("review"); // review, success
+  const [confirmationStep, setConfirmationStep] = useState("review");
 
-  // Sample data - Replace with actual data from your state/props
+  // 🔥 FETCH DATA CLEANLY
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+
+        const [p1, h1] = await Promise.all([
+          api.get(`/api/patient/${patientId}`),
+          api.get(`/api/hospital/fetch/${id}`)
+        ]);
+
+        const patientRes =
+          p1.data?.patientFromPatientModel || p1.data;
+
+        const hospitalRes =
+          h1.data?.hospital || h1.data;
+
+        setPatientData(patientRes);
+        setHospitalData(hospitalRes);
+
+      } catch (err) {
+        console.error("Fetch Error:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (patientId && id) {
+      fetchData();
+    }
+  }, [patientId, id]);
+
+  // 🔥 LOADING UI
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <p className="text-lg font-semibold">Loading data...</p>
+      </div>
+    );
+  }
+
+  // 🔥 SAFETY CHECK
+  if (!patientData || !hospitalData) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <p className="text-red-500">Failed to load data</p>
+      </div>
+    );
+  }
+
   const appointmentData = {
-    date: "2026-03-15",
-    timeSlot: "10:00 AM - 10:30 AM",
-    hospitalName: "City Dialysis Center",
-  };
-
-  const patientData = {
-    fullName: "John Doe",
-    age: 45,
-    email: "john.doe@email.com",
-    phone: "+1 (555) 123-4567",
-    medicalNotes: "Regular dialysis patient. No allergies. Prefers morning appointments.",
-  };
-
-  const hospitalData = {
-    name: "City Dialysis Center",
-    rating: 4.8,
-    address: "123 Medical Plaza, Healthcare District, City, State 12345",
-    phone: "+1 (555) 987-6543",
-    hours: "Monday - Friday: 7:00 AM - 7:00 PM | Saturday: 8:00 AM - 4:00 PM",
-    description:
-      "State-of-the-art dialysis facility with experienced nephrologists and modern equipment. Specialized in chronic and acute dialysis treatments.",
-  };
-
-  const pricingData = {
-    baseFee: 150,
-    serviceFee: 25,
-    discountPercent: 10,
-    taxes: 17.5,
+    date: appointment?.date,
+    timeSlot: selectedSlot || "To be selected",
+    hospitalName: hospitalData?.hospitalName,
   };
 
   const handleConfirm = async () => {
     setIsLoading(true);
     try {
-      // Simulate API call
       await new Promise((resolve) => setTimeout(resolve, 2000));
-      // Here you would call your payment API
-      console.log("Appointment confirmed with payment method:", selectedPaymentMethod);
+      console.log("Confirmed:", selectedPaymentMethod);
       setConfirmationStep("success");
     } catch (error) {
-      console.error("Error confirming appointment:", error);
+      console.error(error);
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleCancel = () => {
-    // Navigate back to previous page
-    console.log("Appointment cancelled");
     window.history.back();
   };
 
+  // 🔥 SUCCESS SCREEN
   if (confirmationStep === "success") {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-emerald-50 py-10 px-4">
-        <div className="max-w-2xl mx-auto">
-          <div className="bg-white rounded-3xl border-2 border-green-300 p-8 shadow-2xl text-center">
-            <div className="mb-6 flex justify-center">
-              <div className="bg-gradient-to-r from-green-500 to-emerald-500 rounded-full p-4 animate-bounce">
-                <CheckCircle size={48} className="text-white" />
-              </div>
-            </div>
-            <h2 className="text-3xl font-bold text-gray-900 mb-3">
-              Appointment Confirmed!
-            </h2>
-            <p className="text-gray-600 mb-6">
-              Your appointment has been successfully booked and payment processed.
-            </p>
-
-            <div className="bg-blue-50 rounded-2xl p-6 mb-6 text-left border border-blue-200">
-              <p className="text-sm text-gray-600 mb-2">Confirmation Number</p>
-              <p className="text-2xl font-bold text-blue-600">APT-2026-03-15-001</p>
-            </div>
-
-            <p className="text-gray-700 mb-6">
-              Check your email for the full appointment details and receipt.
-            </p>
-
-            <button className="w-full px-6 py-4 bg-gradient-to-r from-green-500 to-emerald-500 text-white font-bold rounded-2xl hover:shadow-lg transition-all duration-300 transform hover:scale-105">
-              Return to Home
-            </button>
-          </div>
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="bg-white p-8 rounded-xl text-center shadow-lg">
+          <CheckCircle size={48} className="text-green-500 mx-auto mb-4" />
+          <h2 className="text-2xl font-bold">Appointment Confirmed</h2>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-emerald-50 py-10 px-4">
-      <div className="max-w-4xl mx-auto">
-        {/* Header */}
-        <div className="mb-10">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">
-            Confirm Your Appointment
-          </h1>
-          <p className="text-gray-600">Review all details before making the payment</p>
-        </div>
+    <div className="min-h-screen py-10 px-4 bg-slate-200">
 
-        {/* Components */}
-        <AppointmentSummary appointment={appointmentData} />
-        <PatientInfo patient={patientData} />
-        <HospitalDetails hospital={hospitalData} />
-        <PaymentBreakdown pricing={pricingData} />
-        <PaymentMethod
-          selectedMethod={selectedPaymentMethod}
-          setSelectedMethod={setSelectedPaymentMethod}
-        />
-        <ConfirmationButtons
-          onConfirm={handleConfirm}
-          onCancel={handleCancel}
-          isLoading={isLoading}
-          agreeToTerms={agreeToTerms}
-          setAgreeToTerms={setAgreeToTerms}
-        />
-      </div>
+      <div className="pb-2 font-bold text-slate-800 text-center">Confirm You Appointment</div>
+
+      <AppointmentSummary appointment={appointmentData} />
+
+      <SlotSelector
+        hospital={hospital}
+        onSelectSlot={setSelectedSlot}
+      />
+
+
+      <PatientInfo patientData={patientData} />
+
+      <HospitalDetails hospitalData={hospitalData} />
+
+
+      <PaymentMethod
+        selectedMethod={selectedPaymentMethod}
+        setSelectedMethod={setSelectedPaymentMethod}
+      />
+
+      <ConfirmationButtons
+        disabled={!selectedSlot}
+        onConfirm={handleConfirm}
+        onCancel={handleCancel}
+        isLoading={isLoading}
+        agreeToTerms={agreeToTerms}
+        setAgreeToTerms={setAgreeToTerms}
+      />
     </div>
   );
 }

@@ -154,7 +154,7 @@ useEffect(() => {
       <div className="flex-1">
         <Hero user={userToShow} patient={patient} />
         <QuickActions patient={patient} />
-        <HealthOverview patient={patient} />
+        {/* <HealthOverview patient={patient} /> */}
         <RecentAppointments patient={patient} />
       </div>
 

@@ -1,174 +1,152 @@
-import React, { useState } from "react";
+import React from "react";
+import { MapPin, Phone, Clock, Users, LocateIcon, HospitalIcon } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { MapPin, Phone, Users, Star, Clock, CheckCircle, ArrowRight, AlertCircle, Calendar } from "lucide-react";
 
-export default function HospitalCard({ hospital, selectedDate, selectedTime }) {
+export default function HospitalCard({ hospital, pId, selectedDate }) {
+  // console.log("Rendering HospitalCard with data:", hospital, "for patient:", pId, "and date:", selectedDate);
   const navigate = useNavigate();
-  const [bookingError, setBookingError] = useState("");
+  
+  const handleBooking = () => {
+  if (!selectedDate) {
+    alert("Please select a date first");
+    return;
+  }
 
-  // Time Constraints & Validation Function
-  const validateBooking = () => {
-    const errors = [];
+  const patientId = pId;       // from URL parameter
+  const id = hospital?._id; // from hospital
 
-    if (!selectedDate) {
-      errors.push("Please select a date");
-      return errors;
+  navigate(
+    `/patient/${patientId}/confirmappointment/${id}`,
+    {
+      state: {
+        hospital, // optional (for UI)
+        appointment: {
+          date: selectedDate,
+        },
+      },
     }
-
-    if (!selectedTime) {
-      errors.push("Please select a time slot");
-      return errors;
-    }
-
-    const selectedDateObj = new Date(selectedDate);
-    const now = new Date();
-    const hoursUntilAppointment = (selectedDateObj - now) / (1000 * 60 * 60);
-
-    if (hoursUntilAppointment < 24) {
-      errors.push("Book appointments at least 24 hours in advance");
-    }
-
-    if (hoursUntilAppointment > 24 * 180) {
-      errors.push("Cannot book more than 6 months in advance");
-    }
-
-    if (selectedDateObj < new Date(now.getFullYear(), now.getMonth(), now.getDate())) {
-      errors.push("Cannot book appointments in the past");
-    }
-
-    const [timeHour] = selectedTime.split(":").map(Number);
-    const ampm = selectedTime.includes("PM") ? "PM" : "AM";
-    let hour = timeHour;
-    if (ampm === "PM" && timeHour !== 12) hour += 12;
-    if (ampm === "AM" && timeHour === 12) hour = 0;
-
-    if (hour < 6 || hour > 22) {
-      errors.push("Hospital operates from 6:00 AM to 10:00 PM");
-    }
-
-    const sessionEndHour = hour + 4;
-    if (sessionEndHour > 22) {
-      errors.push("Session would extend beyond operating hours. Choose an earlier time.");
-    }
-
-    return errors;
-  };
-
-  const handleBookAppointment = () => {
-    const errors = validateBooking();
-
-    if (errors.length > 0) {
-      setBookingError(errors[0]);
-      return;
-    }
-
-    navigate(`/patient/confirm-appointment/${hospital.id}?date=${selectedDate}&time=${selectedTime}`);
-  };
-
-  const isBookingDisabled = !selectedDate || !selectedTime;
+  );
+};
 
   return (
-    <div className="group bg-white rounded-3xl border-2 border-gray-300 shadow-lg hover:shadow-2xl hover:border-blue-400 transition-all duration-300 overflow-hidden">
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 p-6 lg:p-8">
-        
-        {/* Hospital Image */}
-        <div className="md:col-span-1 relative overflow-hidden rounded-2xl">
+    <div className="bg-white rounded-2xl shadow-md hover:shadow-xl transition p-5 border border-gray-200 w-full">
+
+      {/* MAIN GRID */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+
+        {/* LEFT: IMAGE */}
+        <div className="w-full h-40 md:h-full">
           <img
-            src={hospital.image}
-            alt={hospital.name}
-            className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-500"
+            src={hospital.image || "../../../public/service2.jpg"}
+            alt={hospital.hospitalName}
+            className="w-full h-full object-cover rounded-xl"
           />
-          {hospital.verified && (
-            <div className="absolute top-3 right-3 bg-green-500 backdrop-blur px-3 py-1 rounded-full flex items-center gap-1 text-white text-xs font-bold shadow-lg">
-              <CheckCircle size={14} />
-              Verified
-            </div>
-          )}
         </div>
 
-        {/* Hospital Info */}
-        <div className="md:col-span-2">
-          <h3 className="text-2xl font-bold text-gray-900 mb-1 group-hover:text-blue-700 transition-colors">{hospital.name}</h3>
-          
-          <div className="space-y-2.5 mb-6">
-            <p className="flex items-center gap-2 text-gray-700 font-medium group-hover:text-gray-900 transition-colors">
-              <MapPin size={18} className="text-orange-600 flex-shrink-0" />
-              {hospital.address}
-            </p>
-            <p className="flex items-center gap-2 text-gray-700 font-medium group-hover:text-gray-900 transition-colors">
-              <Phone size={18} className="text-blue-600 flex-shrink-0" />
-              {hospital.phone}
-            </p>
-            <p className="flex items-center gap-2 text-gray-700 font-medium group-hover:text-gray-900 transition-colors">
-              <Users size={18} className="text-teal-600 flex-shrink-0" />
-              {hospital.dialysisUnits} Dialysis Units
-            </p>
-            <p className="flex items-center gap-2 text-gray-700 font-medium group-hover:text-gray-900 transition-colors">
-              <Clock size={18} className="text-purple-600 flex-shrink-0" />
-              6:00 AM - 10:00 PM
-            </p>
-          </div>
+        {/* CENTER: DETAILS */}
+        <div className="flex flex-col justify-between">
 
-          <div className="flex gap-2 flex-wrap">
-            <span className="px-4 py-2 bg-blue-100 border border-blue-300 text-blue-700 rounded-xl text-xs font-bold hover:bg-blue-200 transition-colors">
-              {hospital.experience}
-            </span>
-            <span className="px-4 py-2 bg-green-100 border border-green-300 text-green-700 rounded-xl text-xs font-bold flex items-center gap-1 hover:bg-green-200 transition-colors">
-              <Calendar size={14} />
-              Book 24hrs ahead
-            </span>
-          </div>
-        </div>
+          <div className="space-y-2">
 
-        {/* Right Side - Price, Rating & CTA */}
-        <div className="md:col-span-1 flex flex-col justify-between">
-          
-          {/* Price */}
-          <div className="mb-6 p-4 bg-gradient-to-br from-green-50 to-emerald-50 border-2 border-green-300 rounded-2xl hover:border-green-400 transition-colors">
-            <p className="text-sm text-gray-600 font-semibold mb-1">Per Session (4 hrs)</p>
-            <p className="text-3xl font-bold text-gray-900">
-              <span className="text-lg text-gray-600">₹</span>{hospital.price}
-            </p>
-          </div>
+            {/* Address */}
 
-          {/* Rating */}
-          <div className="mb-6 p-4 bg-gradient-to-br from-yellow-50 to-orange-50 border-2 border-yellow-300 rounded-2xl hover:border-yellow-400 transition-colors">
-            <div className="flex items-center gap-2 mb-2">
-              <Star size={20} className="text-yellow-500 fill-yellow-500" />
-              <span className="text-2xl font-bold text-gray-900">{hospital.rating}</span>
-              <span className="text-xs text-gray-600">({hospital.reviews})</span>
+            <div className="flex items-start gap-2 mb-4 text-gray-800 text-xl font-bold">
+              <HospitalIcon size={20} className="text-orange-500 mt-1" />
+              <p>{hospital.hospitalName}</p>
             </div>
-            <p className="text-xs text-gray-600 font-semibold">Highly Rated</p>
-          </div>
 
-          {/* Distance */}
-          <div className="mb-6 p-4 bg-gradient-to-br from-orange-50 to-red-50 border-2 border-orange-300 rounded-2xl hover:border-orange-400 transition-colors">
-            <p className="text-sm text-gray-600 font-semibold mb-1">Distance</p>
-            <p className="text-2xl font-bold text-gray-900">{hospital.distance} <span className="text-sm text-gray-600">km</span></p>
-          </div>
-
-          {/* Error Message */}
-          {bookingError && (
-            <div className="mb-4 p-3 bg-red-50 border-2 border-red-300 rounded-xl flex items-start gap-2">
-              <AlertCircle size={18} className="text-red-600 flex-shrink-0 mt-0.5" />
-              <p className="text-xs text-red-700 font-semibold">{bookingError}</p>
+            <div className="flex items-start gap-2 text-gray-800 text-sm">
+              <LocateIcon size={16} className="text-orange-500 mt-1" />
+              <p>{hospital.address}</p>
             </div>
-          )}
 
-          {/* Book Button */}
-          <button
-            onClick={handleBookAppointment}
-            disabled={isBookingDisabled}
-            className="w-full px-4 py-3 rounded-xl font-bold text-white bg-gradient-to-r from-blue-600 to-teal-500 hover:shadow-xl hover:shadow-blue-300 disabled:opacity-30 disabled:cursor-not-allowed transition-all duration-300 hover:scale-105 active:scale-95 flex items-center justify-center gap-2 group"
-          >
-            <span>Book Now</span>
-            <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+            {hospital.distance && (
+              <div className="flex items-start gap-2 text-gray-800 text-sm">
+                <MapPin size={16} className="text-cyan-600 mt-1" />
+                <p>{hospital.distance.toFixed(1)} km away</p>
+              </div>
+            )}
+
+            {/* Phone */}
+            <div className="flex items-center gap-2 text-gray-800 text-sm">
+              <Phone size={16} className="text-blue-500" />
+              <p>{hospital.phone || "N/A"}</p>
+            </div>
+
+            {/* Units */}
+            <div className="flex items-center gap-2 text-gray-800 text-sm">
+              <Users size={16} className="text-green-600" />
+              <p>{hospital.dialysisType || "Dialysis Units"}</p>
+            </div>
+
+            {/* Timing */}
+            {/* <div className="flex items-center gap-2 text-gray-700 text-sm">
+              <Clock size={16} className="text-purple-500" />
+              <p>{hospital.timing || "6:00 AM - 10:00 PM"}</p>
+            </div> */}
+          </div>
+
+          {/* BUTTON */}
+          <button className="mt-4 bg-green-100 text-green-700 font-semibold py-2 rounded-lg">
+            📅 Book 24hrs ahead
           </button>
-          
-          {isBookingDisabled && (
-            <p className="text-center text-xs text-gray-600 mt-2 font-medium">Select date & time first</p>
-          )}
         </div>
+
+        {/* RIGHT: STATS */}
+        <div className="flex flex-col gap-4 mt-4 md:mt-0 justify-between">
+
+          {/* 🔥 PRICE BOX */}
+          <div className="border border-green-400 rounded-xl p-3 text-sm">
+
+            {/* Hemodialysis (4h + 6h) */}
+            {(hospital.dialysisType === "both" ||
+              hospital.dialysisType === "hemodialysis") && (
+                <>
+                  <p className="text-gray-600">(4 hrs session)</p>
+                  <p className="text-lg font-bold mb-2">
+                    ₹{hospital.priceFor4Hrs || 0}
+                  </p>
+
+                  <p className="text-gray-600">(6 hrs session)</p>
+                  <p className="text-lg font-bold mb-2">
+                    ₹{hospital.priceFor6Hrs || 0}
+                  </p>
+                </>
+              )}
+
+            {/* Peritoneal */}
+            {(hospital.dialysisType === "both" ||
+              hospital.dialysisType === "peritoneal_dialysis") && (
+                <>
+                  <p className="text-gray-600">(Peritoneal Dialysis)</p>
+                  <p className="text-lg font-bold">
+                    ₹{hospital.priceForPD || 0}
+                  </p>
+                </>
+              )}
+          </div>
+
+          {/* 🔥 STATS GRID (mobile friendly) */}
+          <div className="grid grid-cols-2 gap-3">
+
+            {/* Rating */}
+            {/* <div className="border border-yellow-400 text-center rounded-xl p-3 text-sm">
+      <p className="text-lg font-bold">{hospital.rating || 0}</p>
+      <p>Highly Rated</p>
+    </div> */}
+
+          </div>
+
+          {/* 🔥 BOOK BUTTON */}
+          <button
+            onClick={handleBooking}
+            className="w-full bg-slate-800 text-white font-semibold py-2 rounded-xl hover:bg-slate-900 transition cursor-pointer"
+          >
+            Book Now
+          </button>
+
+        </div>
+
       </div>
     </div>
   );

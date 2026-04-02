@@ -132,7 +132,7 @@ export default function DialysisDetailsForm({
   // ---------------- UI ----------------
 
   return (
-    <div className="bg-white rounded-2xl border-2 border-gray-300 p-6 shadow-md hover:shadow-lg hover:border-blue-300 transition-all duration-300">
+    <div className="bg-white rounded-2xl p-6 shadow-md">
       <div className="flex items-center gap-3 mb-6">
         <div className="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
           <Droplet size={20} className="text-red-600" />
@@ -182,7 +182,7 @@ export default function DialysisDetailsForm({
                 onClick={() => handleTypeSelect(type.value)}
                 className={`py-3 px-4 rounded-lg font-semibold text-sm border-2 ${
                   formData.dialysisType === type.value
-                    ? "bg-red-500 text-white border-red-600"
+                    ? "bg-slate-800 text-white"
                     : "bg-gray-100 border-gray-300"
                 }`}
               >
@@ -202,6 +202,7 @@ export default function DialysisDetailsForm({
         {(isHemodialysis || isBoth) && (
           <>
             <input
+            className="border-2 p-2 border-slate-200 rounded-lg"
               type="number"
               placeholder="Price for 4 hrs"
               value={formData.priceFor4Hrs}
@@ -214,6 +215,7 @@ export default function DialysisDetailsForm({
             )}
 
             <input
+              className="border-2 p-2 border-slate-200 rounded-lg"
               type="number"
               placeholder="Price for 6 hrs"
               value={formData.priceFor6Hrs}
@@ -230,6 +232,7 @@ export default function DialysisDetailsForm({
         {(isPeritoneal || isBoth) && (
           <>
             <input
+              className="border-2 p-2 border-slate-200 rounded-lg"
               type="number"
               placeholder="Monthly PD price"
               value={formData.priceForPD}

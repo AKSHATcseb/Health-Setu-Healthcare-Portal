@@ -42,7 +42,7 @@ export default function BankDetailsForm({
   };
 
   return (
-    <div className="bg-white rounded-2xl border-2 border-gray-300 p-6 shadow-md hover:shadow-lg hover:border-blue-300 transition-all duration-300">
+    <div className="bg-white rounded-2xl p-6 shadow-md">
       <div className="flex items-center gap-3 mb-6">
         <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
           <Building size={20} className="text-green-600" />

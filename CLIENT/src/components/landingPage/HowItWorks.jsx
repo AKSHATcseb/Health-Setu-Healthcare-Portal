@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { BarChart3, Calendar, Lock, Check } from "lucide-react";
 
 const steps = [
@@ -23,8 +23,10 @@ const steps = [
 ];
 
 export default function HowItWorks() {
+  const [hoveredId, setHoveredId] = useState(null);
+
   return (
-    <section id="howitworks" className="w-full px-4 sm:px-6 lg:px-12 py-16 sm:py-20 md:py-28 bg-gray-50">
+    <section id="howitworks" className="w-full px-4 sm:px-6 lg:px-12 py-16 sm:py-20 md:py-28 bg-slate-200">
       <div className="max-w-7xl mx-auto">
         
         {/* Header */}
@@ -43,41 +45,76 @@ export default function HowItWorks() {
         {/* Steps */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8 relative">
           
-          {/* Connecting Line (Desktop Only) */}
+          {/* Connecting Line */}
           <div className="hidden md:block absolute top-20 left-0 right-0 h-1 bg-gradient-to-r from-blue-600 via-teal-500 to-blue-600 -z-10"></div>
 
           {steps.map((step, index) => {
             const Icon = step.icon;
+            const isHovered = hoveredId === step.id;
 
             return (
-              <div key={step.id} className="relative">
+              <div
+                key={step.id}
+                onMouseEnter={() => setHoveredId(step.id)}
+                onMouseLeave={() => setHoveredId(null)}
+                className="relative group cursor-pointer"
+              >
                 
-                {/* Step Card */}
-                <div className="bg-white border border-gray-200 p-8 sm:p-10 rounded-2xl shadow-lg hover:shadow-xl hover:border-teal-300 transition-all duration-300 group">
+                {/* Card */}
+                <div
+                  className={`h-full flex flex-col p-8 sm:p-10 rounded-2xl transition-all duration-300 ${
+                    isHovered
+                      ? "bg-gray-900 shadow-lg hover:shadow-xl"
+                      : "bg-white shadow-lg hover:shadow-xl"
+                  }`}
+                >
                   
                   {/* Step Number */}
-                  <div className="absolute -top-5 -left-5 w-12 h-12 bg-gradient-to-br from-blue-600 to-teal-500 text-white rounded-full flex items-center justify-center font-bold text-lg shadow-lg">
+                  {/* <div className="absolute -top-5 -left-5 w-12 h-12 bg-slate-400 text-white rounded-full flex items-center justify-center font-bold text-lg shadow-lg ">
                     {index + 1}
-                  </div>
+                  </div> */}
 
                   {/* Icon */}
-                  <div className="w-16 h-16 bg-blue-100 rounded-xl flex items-center justify-center mb-6 group-hover:bg-teal-100 transition-colors duration-300">
-                    <Icon size={32} className="text-blue-600" />
+                  <div
+                    className={`w-16 h-16 rounded-xl flex items-center justify-center mb-6 transition-all duration-300 ${
+                      isHovered
+                        ? "bg-white text-slate-900 shadow-lg shadow-blue-200"
+                        : "bg-slate-900 text-white"
+                    }`}
+                  >
+                    <Icon size={32} />
                   </div>
 
                   {/* Title */}
-                  <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-3">
+                  <h3
+                    className={`text-xl sm:text-2xl font-bold mb-3 transition-colors duration-300 ${
+                      isHovered ? "text-gray-100" : "text-gray-900"
+                    }`}
+                  >
                     {step.title}
                   </h3>
 
                   {/* Description */}
-                  <p className="text-gray-600 text-sm sm:text-base leading-relaxed mb-6">
+                  <p
+                    className={`text-sm sm:text-base leading-relaxed mb-6 transition-colors duration-300 ${
+                      isHovered ? "text-gray-400" : "text-gray-700"
+                    }`}
+                  >
                     {step.desc}
                   </p>
 
-                  {/* Check Mark */}
-                  <div className="flex items-center gap-2 text-teal-600 font-semibold text-sm">
-                    <Check size={20} className="bg-teal-100 rounded-full p-1" />
+                  {/* Bottom Status */}
+                  <div
+                    className={`flex items-center gap-2 font-semibold text-sm ${
+                      isHovered ? "text-gray-400" : "text-teal-600"
+                    }`}
+                  >
+                    <Check
+                      size={20}
+                      className={`rounded-full p-1 ${
+                        isHovered ? "bg-gray-700" : "bg-teal-100"
+                      }`}
+                    />
                     Ready to go
                   </div>
                 </div>
@@ -91,7 +128,7 @@ export default function HowItWorks() {
           <p className="text-gray-600 text-sm sm:text-base mb-6">
             Ready to experience better healthcare?
           </p>
-          <button className="px-8 sm:px-10 py-3 sm:py-4 bg-gradient-to-r from-blue-600 to-teal-500 text-white rounded-full font-bold text-base sm:text-lg hover:shadow-xl hover:shadow-blue-200 hover:scale-105 transition-all duration-300">
+          <button className="px-8 sm:px-10 py-3 sm:py-4 bg-slate-900 text-white rounded-full font-bold text-base sm:text-lg hover:shadow-xl hover:shadow-blue-200 hover:scale-105 transition-all duration-300">
             Get Started Free
           </button>
         </div>

@@ -124,7 +124,7 @@ export default function OperatingHoursForm({ formData, setFormData }) {
   };
 
   return (
-    <div className="bg-white rounded-2xl border p-6 shadow">
+    <div className="bg-white rounded-2xl p-6 shadow-md">
       <div className="flex items-center gap-3 mb-6">
         <Clock />
         <h2 className="font-bold">Operating Hours & Slots</h2>

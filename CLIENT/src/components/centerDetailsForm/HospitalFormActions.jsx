@@ -22,14 +22,20 @@ export default function HospitalFormActions({
         </button>
       )}
 
+      
+
       <button
         onClick={onSubmit}
         disabled={isLoading || !isFormValid}
-        className={`flex-1 flex items-center justify-center gap-2 px-6 py-3 rounded-lg font-semibold transition-all duration-300 transform text-sm ${
+        className={`w-full inline-flex items-center justify-center gap-3 px-5 py-2.5 rounded-lg font-semibold text-white transition-transform transform ${
           isFormValid && !isLoading
-            ? "bg-gradient-to-r from-blue-600 to-teal-600 text-white hover:shadow-lg hover:scale-105"
+            ? "bg-linear-to-r from-blue-600 to-teal-600 text-white hover:shadow-lg hover:scale-105"
             : "bg-gray-400 text-white cursor-not-allowed"
         }`}
+          style={{
+            background: "linear-gradient(90deg,#0ea5e9 0%, #0369a1 100%)",
+            boxShadow: "0 8px 30px rgba(2,6,23,0.35)",
+          }}
       >
         {isLoading ? (
           <>

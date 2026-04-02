@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import ProfileHeader from "../../components/patientDetailsForm/ProfileHeader";
-import ProgressIndicator from "../../components/patientDetailsForm/ProgressIndicator";
 import PersonalDetailsForm from "../../components/patientDetailsForm/PersonalDetailsForm";
 import MedicalDetailsForm from "../../components/patientDetailsForm/MedicalDetailsForm";
 import LocationDetailsForm from "../../components/patientDetailsForm/LocationDetailsForm";
@@ -216,13 +215,13 @@ export default function CompleteProfile() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-teal-50">
+    <div className="min-h-screen bg-slate-200">
       <ProfileHeader />
 
       <div className="w-full px-4 sm:px-6 lg:px-8 py-8">
-        <div className="max-w-2xl mx-auto">
+        <div className="max-w-5xl mx-auto">
           {/* Progress Indicator */}
-          <ProgressIndicator currentStep={currentStep} totalSteps={totalSteps} />
+          {/* <ProgressIndicator currentStep={currentStep} totalSteps={totalSteps} /> */}
 
           {/* Global Error */}
           {globalError && (
@@ -281,7 +280,7 @@ export default function CompleteProfile() {
           </div>
 
           {/* Form Summary (Desktop) */}
-          <div className="hidden lg:block mt-8 bg-white rounded-2xl border-2 border-gray-300 p-6 shadow-md">
+          {/* <div className="hidden lg:block mt-8 bg-white rounded-2xl border-2 border-gray-300 p-6 shadow-md">
             <h3 className="text-sm font-bold text-gray-900 mb-4">Profile Summary</h3>
             <div className="grid grid-cols-2 gap-4 text-xs">
               {formData.fullName && (
@@ -309,7 +308,7 @@ export default function CompleteProfile() {
                 </div>
               )}
             </div>
-          </div>
+          </div> */}
         </div>
       </div>
     </div>

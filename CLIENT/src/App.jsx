@@ -34,7 +34,7 @@ function App() {
         <Route path="/patient/detailsForm" element={<PatientDetailsForm />} />
         <Route path='/patient/dashboard/:id' element={<PatientDashboard />} />
         <Route path='/patient/:id/bookappointment' element={<BookingPage />} />
-        <Route path='/patient/appointmentconfirmation' element={<AppointmentConfirmation />} />
+        <Route path="/patient/:patientId/confirmappointment/:id" element={<AppointmentConfirmation />} />
         <Route path='/patient/myappointments' element={<MyAppointments />} />
         <Route path='/patient/profile' element={<PatientProfile />} />
         <Route path="/center/detailsForm" element={<CenterDetailsForm />} />

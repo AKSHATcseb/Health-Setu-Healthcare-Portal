@@ -63,7 +63,7 @@ export default function HospitalLocationForm({
   };
 
   return (
-    <div className="bg-white rounded-2xl border-2 border-gray-300 p-6 shadow-md hover:shadow-lg hover:border-blue-300 transition-all duration-300">
+    <div className="bg-white rounded-2xl  p-6 shadow-md">
       <div className="flex items-center gap-3 mb-6">
         <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
           <MapPin size={20} className="text-orange-600" />
@@ -100,7 +100,7 @@ export default function HospitalLocationForm({
         </div>
 
         {/* Fetch Location */}
-        <div className="bg-blue-50 rounded-lg p-4 border-2 border-blue-200">
+        <div className=" rounded-lg py-4 ">
           <div className="flex items-start gap-3 mb-3">
             <AlertCircle size={16} className="text-blue-600 flex-shrink-0 mt-0.5" />
             <p className="text-xs text-blue-700 font-medium">
@@ -110,7 +110,11 @@ export default function HospitalLocationForm({
           <button
             onClick={handleFetchLocation}
             disabled={locationLoading}
-            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-r from-blue-600 to-teal-600 text-white font-semibold rounded-lg hover:shadow-md transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+            className={`w-full inline-flex items-center justify-center gap-3 px-5 py-2.5 rounded-lg font-semibold text-white transition-transform transform`}
+          style={{
+            background: "linear-gradient(90deg,#0ea5e9 0%, #0369a1 100%)",
+            // boxShadow: "0 8px 30px rgba(2,6,23,0.35)",
+          }}
           >
             {locationLoading ? (
               <>
@@ -132,39 +136,6 @@ export default function HospitalLocationForm({
             <p className="text-xs text-red-700">{locationError}</p>
           </div>
         )}
-
-        {/* Coordinates Display */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          {/* Latitude */}
-          <div className="bg-blue-50 rounded-lg p-4 border-2 border-blue-200">
-            <p className="text-xs text-blue-700 font-semibold mb-2">Latitude</p>
-            <input
-              type="number"
-              value={formData.latitude || ""}
-              onChange={(e) =>
-                setFormData({ ...formData, latitude: parseFloat(e.target.value) })
-              }
-              placeholder="Auto-filled or enter manually"
-              step="0.000001"
-              className="w-full px-3 py-2 text-sm rounded-lg border-2 border-blue-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none"
-            />
-          </div>
-
-          {/* Longitude */}
-          <div className="bg-blue-50 rounded-lg p-4 border-2 border-blue-200">
-            <p className="text-xs text-blue-700 font-semibold mb-2">Longitude</p>
-            <input
-              type="number"
-              value={formData.longitude || ""}
-              onChange={(e) =>
-                setFormData({ ...formData, longitude: parseFloat(e.target.value) })
-              }
-              placeholder="Auto-filled or enter manually"
-              step="0.000001"
-              className="w-full px-3 py-2 text-sm rounded-lg border-2 border-blue-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none"
-            />
-          </div>
-        </div>
 
         {/* Location Status */}
         {formData.latitude && formData.longitude && (

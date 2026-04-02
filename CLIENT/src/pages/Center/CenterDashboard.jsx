@@ -290,42 +290,25 @@ export default function HospitalDashboard() {
   console.log("HospitalDashboard rendering with user:", userToShow, "hospital:", hospital);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-teal-50">
+    <div className="min-h-screen bg-slate-100">
       <HospitalDashboardHeader hospitalName={hospital.hospitalName
-} unreadNotifications={3} onLogout={handleLogout} />
+      } unreadNotifications={3} onLogout={handleLogout} />
 
       <div className="w-full px-4 sm:px-6 lg:px-8 py-8">
         <div className="max-w-7xl mx-auto">
           {/* Quick Stats */}
           <QuickStatsComponent stats={stats} />
 
-          {/* Main Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-            {/* Left Column - Charts */}
-            <div className="lg:col-span-2 space-y-6">
-              <AppointmentStatusOverview data={appointmentStatusData} />
-              <AppointmentsByDateChart data={appointmentsByDate} />
-            </div>
-
-            {/* Right Column - Info Cards */}
-            <div className="space-y-6">
+          {/* Info Cards */}
+          <div className="space-y-6">
+            <div className="max-h-100 overflow-y-auto">
               <HospitalInfoCard hospitalInfo={hospital} />
-              <DialysisSeatsOccupancy totalSeats={totalSeats} occupiedSeats={occupiedSeats} />
             </div>
+            <DialysisSeatsOccupancy totalSeats={totalSeats} occupiedSeats={occupiedSeats} />
           </div>
 
-          {/* Bottom Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-2">
-              <UpcomingAppointmentsCard appointments={upcomingAppointments} onApprove={handleApproveAppointment} onCancel={handleCancelAppointment} />
-            </div>
-
-            <RecentActivityComponent activities={recentActivities} />
-          </div>
-
-          {/* Patients Table */}
-          <div className="mt-6">
-            <PatientsListComponent patients={recentPatients} onEdit={handleEditPatient} onDelete={handleDeletePatient} />
+          <div className="lg:col-span-2">
+            <UpcomingAppointmentsCard appointments={upcomingAppointments} onApprove={handleApproveAppointment} onCancel={handleCancelAppointment} />
           </div>
         </div>
       </div>
