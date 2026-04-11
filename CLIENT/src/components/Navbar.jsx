@@ -71,7 +71,7 @@ export default function Navbar() {
               className="
               px-6 py-2.5
               rounded-full
-              bg-slate-800
+              bg-gradient-to-r from-slate-600 via-slate-800 to-slate-900
               backdrop-blur-md
               border border-white/40
               hover:bg-slate-100

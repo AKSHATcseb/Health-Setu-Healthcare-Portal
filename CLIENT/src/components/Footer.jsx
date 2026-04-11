@@ -1,33 +1,61 @@
 import React from "react";
-import { Mail, Phone, MapPin, Facebook, Twitter, Linkedin, Heart } from "lucide-react";
+import {
+  Mail,
+  Phone,
+  MapPin,
+  Facebook,
+  Twitter,
+  Linkedin
+} from "lucide-react";
+
+import logo from "../assets/images/logo.svg";
 
 export default function Footer() {
   return (
-    <footer className="w-full bg-gray-900 border-t border-gray-800 text-gray-300 px-4 sm:px-6 lg:px-12 py-12 sm:py-16 md:py-20">
+    <footer className="
+    w-full 
+    bg-slate-900
+    border-t border-slate-700
+    text-slate-300
+    px-4 sm:px-6 lg:px-12 
+    py-16
+    ">
       <div className="max-w-7xl mx-auto">
-        
-        {/* Main Footer */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-12 mb-12 sm:mb-16">
-          
+
+        {/* Top */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 mb-16">
+
           {/* Brand */}
           <div>
-            <div className="flex items-center gap-2 mb-4">
-              <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-teal-500 rounded-full flex items-center justify-center">
-                <Heart size={20} className="text-white fill-white" />
-              </div>
-              <span className="font-bold text-xl text-white">HealthSetu</span>
+            <div className="flex items-center gap-3 mb-4">
+              <img
+                src={logo}
+                alt="HealthSetu"
+                className="w-12 h-12"
+              />
+              <span className="
+              font-semibold 
+              text-xl
+              text-white">
+                HealthSetu
+              </span>
             </div>
-            <p className="text-gray-400 text-sm leading-relaxed mb-6">
-              Empowering patients and families with AI-driven healthcare solutions for a healthier tomorrow.
+
+            <p className="text-sm text-slate-200 leading-relaxed mb-6">
+              Connecting dialysis patients with trusted centers.
+              AI powered care coordination for better outcomes.
             </p>
-            <div className="flex gap-4">
-              <a href="#" className="p-2 bg-gray-800 rounded-full hover:bg-blue-600/50 transition-colors duration-300">
+
+            <div className="flex gap-3">
+              <a className="p-2 rounded-full bg-slate-800 hover:bg-slate-700 transition">
                 <Facebook size={18} />
               </a>
-              <a href="#" className="p-2 bg-gray-800 rounded-full hover:bg-blue-600/50 transition-colors duration-300">
+
+              <a className="p-2 rounded-full bg-slate-800 hover:bg-slate-700 transition">
                 <Twitter size={18} />
               </a>
-              <a href="#" className="p-2 bg-gray-800 rounded-full hover:bg-blue-600/50 transition-colors duration-300">
+
+              <a className="p-2 rounded-full bg-slate-800 hover:bg-slate-700 transition">
                 <Linkedin size={18} />
               </a>
             </div>
@@ -35,70 +63,134 @@ export default function Footer() {
 
           {/* Product */}
           <div>
-            <h4 className="font-bold text-lg text-white mb-4">Product</h4>
-            <ul className="space-y-2 text-gray-400 text-sm">
-              <li><a href="#features" className="hover:text-blue-400 transition-colors duration-300">Features</a></li>
-              <li><a href="#howitworks" className="hover:text-blue-400 transition-colors duration-300">How It Works</a></li>
-              <li><a href="#" className="hover:text-blue-400 transition-colors duration-300">Pricing</a></li>
-              <li><a href="#" className="hover:text-blue-400 transition-colors duration-300">Security</a></li>
+            <h4 className="font-semibold text-white mb-4">
+              Product
+            </h4>
+
+            <ul className="space-y-3 text-sm">
+              <li className="hover:text-white cursor-pointer">Features</li>
+              <li className="hover:text-white cursor-pointer">How it works</li>
+              <li className="hover:text-white cursor-pointer">Pricing</li>
+              <li className="hover:text-white cursor-pointer">Security</li>
             </ul>
           </div>
 
           {/* Company */}
           <div>
-            <h4 className="font-bold text-lg text-white mb-4">Company</h4>
-            <ul className="space-y-2 text-gray-400 text-sm">
-              <li><a href="#" className="hover:text-blue-400 transition-colors duration-300">About</a></li>
-              <li><a href="#" className="hover:text-blue-400 transition-colors duration-300">Blog</a></li>
-              <li><a href="#" className="hover:text-blue-400 transition-colors duration-300">Careers</a></li>
-              <li><a href="#" className="hover:text-blue-400 transition-colors duration-300">Press</a></li>
+            <h4 className="font-semibold text-white mb-4">
+              Company
+            </h4>
+
+            <ul className="space-y-3 text-sm">
+              <li className="hover:text-white cursor-pointer">About</li>
+              <li className="hover:text-white cursor-pointer">Blog</li>
+              <li className="hover:text-white cursor-pointer">Careers</li>
+              <li className="hover:text-white cursor-pointer">Press</li>
             </ul>
           </div>
 
           {/* Contact */}
           <div>
-            <h4 className="font-bold text-lg text-white mb-4">Contact</h4>
-            <ul className="space-y-3 text-sm">
-              <li className="flex items-center gap-3 text-gray-400 hover:text-blue-400 transition-colors duration-300">
-                <Mail size={18} className="flex-shrink-0" />
-                <a href="mailto:support@healthsetu.com">support@healthsetu.com</a>
-              </li>
-              <li className="flex items-center gap-3 text-gray-400 hover:text-blue-400 transition-colors duration-300">
-                <Phone size={18} className="flex-shrink-0" />
-                <a href="tel:+1234567890">+1 (234) 567-890</a>
-              </li>
-              <li className="flex items-start gap-3 text-gray-400">
-                <MapPin size={18} className="flex-shrink-0 mt-1" />
-                <span>123 Health Street, Medical City, MC 12345</span>
-              </li>
-            </ul>
+            <h4 className="font-semibold text-white mb-4">
+              Contact
+            </h4>
+
+            <div className="space-y-4 text-sm">
+
+              <div className="flex gap-3">
+                <Mail size={18} />
+                support@healthsetu.com
+              </div>
+
+              <div className="flex gap-3">
+                <Phone size={18} />
+                +91 98765 43210
+              </div>
+
+              <div className="flex gap-3">
+                <MapPin size={18} />
+                Delhi, India
+              </div>
+
+            </div>
           </div>
         </div>
 
         {/* Newsletter */}
-        <div className="mb-12 sm:mb-16 pb-12 sm:pb-16 border-t border-gray-800">
-          <h4 className="font-bold text-lg text-white mb-4">Newsletter</h4>
-          <p className="text-gray-400 text-sm mb-4">Subscribe for health tips, product updates, and expert insights.</p>
-          <div className="flex flex-col sm:flex-row gap-3 max-w-md">
-            <input
-              type="email"
-              placeholder="your@email.com"
-              className="flex-1 px-4 py-3 rounded-full bg-gray-800 border border-gray-700 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300 text-sm"
-            />
-            <button className="px-6 py-3 bg-gradient-to-r from-blue-600 to-teal-500 text-white rounded-full font-bold text-sm hover:shadow-lg hover:shadow-blue-500/50 hover:scale-105 transition-all duration-300 whitespace-nowrap">
-              Subscribe
-            </button>
+        <div className="
+        bg-slate-800
+        rounded-2xl 
+        p-8 
+        border border-slate-700
+        mb-12
+        ">
+          <div className="flex flex-col lg:flex-row justify-between gap-6">
+
+            <div>
+              <h4 className="font-semibold text-white text-lg">
+                Get dialysis updates
+              </h4>
+              <p className="text-sm text-slate-400">
+                Tips, alerts, and center availability
+              </p>
+            </div>
+
+            <div className="flex gap-3 w-full lg:w-auto">
+              <input
+                placeholder="Enter your email"
+                className="
+                px-4 py-3 
+                rounded-full 
+                border border-slate-600
+                bg-slate-900
+                text-white
+                w-full lg:w-72
+                outline-none
+                focus:ring-2 focus:ring-blue-500
+                "
+              />
+
+              <button className="
+              px-6 py-3 
+              rounded-full
+              text-slate-950
+              bg-gradient-to-r from-slate-300 via-slate-400 to-slate-500
+              hover:shadow-lg
+              transition
+              ">
+                Subscribe
+              </button>
+            </div>
+
           </div>
         </div>
 
         {/* Bottom */}
-        <div className="border-t border-gray-800 pt-8 flex flex-col sm:flex-row justify-between items-center gap-6 text-gray-400 text-xs sm:text-sm">
-          <p>&copy; 2024 HealthSetu. All rights reserved.</p>
+        <div className="
+        border-t border-slate-700
+        pt-6
+        flex flex-col sm:flex-row
+        justify-between items-center
+        gap-4
+        text-sm text-slate-400
+        ">
+
+          <p>© 2026 HealthSetu. All rights reserved.</p>
+
           <div className="flex gap-6">
-            <a href="#" className="hover:text-blue-400 transition-colors duration-300">Privacy Policy</a>
-            <a href="#" className="hover:text-blue-400 transition-colors duration-300">Terms of Service</a>
-            <a href="#" className="hover:text-blue-400 transition-colors duration-300">HIPAA Compliance</a>
+            <span className="hover:text-white cursor-pointer">
+              Privacy
+            </span>
+
+            <span className="hover:text-white cursor-pointer">
+              Terms
+            </span>
+
+            <span className="hover:text-white cursor-pointer">
+              Medical Disclaimer
+            </span>
           </div>
+
         </div>
       </div>
     </footer>
