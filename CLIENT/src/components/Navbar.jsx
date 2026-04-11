@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import { Menu, X, Heart } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
-import logo from "../assets/images/logo.png";
+import logo from "../assets/images/logo.svg";
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
@@ -9,68 +9,77 @@ export default function Navbar() {
   const location = useLocation();
 
   const scrollToSection = (id) => {
-    // If already on landing page
     if (location.pathname === "/") {
-      const element = document.getElementById(id);
-      if (element) {
-        element.scrollIntoView({ behavior: "smooth" });
-      }
+      document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
     } else {
-      // Navigate first, then scroll
       navigate("/");
-
       setTimeout(() => {
-        const element = document.getElementById(id);
-        if (element) {
-          element.scrollIntoView({ behavior: "smooth" });
-        }
+        document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
       }, 300);
     }
-
-    setOpen(false); // close mobile menu
+    setOpen(false);
   };
 
   return (
-    <nav className="w-full py-2 sticky top-0 z-50 bg-slate-200">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 py-4">
-        <div className="flex items-center justify-between">
+    <nav className="w-full sticky top-0 z-50 
+    backdrop-blur-xl 
+    bg-slate-200 
+    border-b border-white/20
+    shadow-sm">
+      
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12">
+        <div className="flex items-center justify-between h-20">
 
           {/* Logo */}
           <div
-      onClick={() => navigate("/")}
-      className="flex items-center gap-2 cursor-pointer"
-    >
-      <div className="w-10 h-10 rounded-full overflow-hidden bg-white">
-        <img
-          src={logo}
-          alt="HealthSetu"
-          className="w-full h-full object-contain"
-        />
-      </div>
+            onClick={() => navigate("/")}
+            className="flex items-center gap-3 cursor-pointer"
+          >
+            <img
+              src={logo}
+              alt="HealthSetu"
+              className="w-14 h-14 sm:w-16 sm:h-16"
+            />
 
-      <h1 className="font-bold text-lg sm:text-2xl text-blue-700">
-        HealthSetu
-      </h1>
-    </div>
+            <span className="
+            text-2xl font-semibold
+            bg-gradient-to-r from-blue-600 to-emerald-500 
+            bg-clip-text text-transparent">
+              HealthSetu
+            </span>
+          </div>
 
           {/* Desktop Nav */}
-          <div className="hidden lg:flex items-center gap-12">
-            <button onClick={() => scrollToSection("features")}>
+          <div className="hidden lg:flex items-center gap-10 text-slate-700 font-medium">
+            <button onClick={() => scrollToSection("features")} className="hover:text-blue-600 transition">
               Features
             </button>
-            <button onClick={() => scrollToSection("howitworks")}>
-              How It Works
+
+            <button onClick={() => scrollToSection("howitworks")} className="hover:text-blue-600 transition">
+              How it works
             </button>
-            <button onClick={() => scrollToSection("contact")}>
+
+            <button onClick={() => scrollToSection("contact")} className="hover:text-blue-600 transition">
               Contact
             </button>
           </div>
 
-          {/* Buttons */}
-          <div className="hidden lg:flex gap-4">
+          {/* Sign in */}
+          <div className="hidden lg:flex">
             <button
               onClick={() => navigate("/login")}
-              className="px-6 py-3 bg-slate-800 text-white rounded-full hover:bg-slate-950 cursor-pointer transition"
+              className="
+              px-6 py-2.5
+              rounded-full
+              bg-slate-800
+              backdrop-blur-md
+              border border-white/40
+              hover:bg-slate-100
+              text-slate-200
+              font-medium
+              shadow-sm
+              transition
+              "
             >
               Sign In
             </button>
@@ -87,34 +96,35 @@ export default function Navbar() {
 
         {/* Mobile Menu */}
         {open && (
-          <div className="lg:hidden mt-4 space-y-3 border-b-2 border-slate-300 pb-4">
-            <button
-              onClick={() => scrollToSection("features")}
-              className="block w-full text-center hover:text-slate-500"
-            >
+          <div className="
+          lg:hidden 
+          mt-2 
+          p-4 
+          rounded-2xl 
+          bg-slate-200
+          backdrop-blur-xl 
+          border border-white/30
+          space-y-4">
+
+            <button onClick={() => scrollToSection("features")} className="block w-full text-left">
               Features
             </button>
-            <button
-              onClick={() => scrollToSection("howitworks")}
-              className="block w-full text-center"
-            >
-              How It Works
+
+            <button onClick={() => scrollToSection("howitworks")} className="block w-full text-left">
+              How it works
             </button>
-            <button
-              onClick={() => scrollToSection("contact")}
-              className="block w-full text-center"
-            >
+
+            <button onClick={() => scrollToSection("contact")} className="block w-full text-left">
               Contact
             </button>
 
-            <div className="flex flex-col gap-3 pt-3"> 
-              <button className="w-full px-6 py-2 bg-slate-900 text-white font-semibold rounded-full hover:shadow-lg hover:shadow-blue-200 hover:scale-105 transition-all duration-300"> 
-                Sign In 
-              </button> 
-            </div>
-
+            <button
+              onClick={() => navigate("/login")}
+              className="w-full py-3 rounded-full bg-slate-800 text-white"
+            >
+              Sign In
+            </button>
           </div>
-
         )}
       </div>
     </nav>
