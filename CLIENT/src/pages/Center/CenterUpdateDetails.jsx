@@ -39,9 +39,7 @@ export default function CenterDeatilsForm({ isEditMode = false }) {
     // facilities: [],
     // Bank Details
     accountHolderName: "",
-    bankName: "",
-    accountNumber: "",
-    ifscCode: "",
+    upiID: "",
   });
 
   const [errors, setErrors] = useState({
@@ -51,8 +49,7 @@ export default function CenterDeatilsForm({ isEditMode = false }) {
     website: "",
     dialysisSeats: "",
     address: "",
-    accountNumber: "",
-    ifscCode: "",
+    upiID: "",
   });
 
   // Validation functions
@@ -87,10 +84,8 @@ export default function CenterDeatilsForm({ isEditMode = false }) {
     return (
       formData.accountHolderName &&
       formData.bankName &&
-      formData.accountNumber &&
-      formData.ifscCode &&
-      !errors.accountNumber &&
-      !errors.ifscCode
+      formData.upiID &&
+      !errors.upiID
     );
   };
 

@@ -93,7 +93,6 @@ export default function PatientProfile() {
           <ProfileStats stats={patientData.stats} />
 
           {/* Main Content - Two Column Layout */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Left Column */}
             <div className="lg:col-span-2 space-y-6">
               {/* Personal Information */}
@@ -105,22 +104,6 @@ export default function PatientProfile() {
               {/* Location Information */}
               <LocationInfoSection locationInfo={patientData.locationInfo} />
             </div>
-
-            {/* Right Column */}
-            <div className="space-y-6">
-              {/* Emergency Contact */}
-              <EmergencyContactSection
-                emergencyContact={patientData.emergencyContact}
-              />
-
-              {/* Action Buttons */}
-              <ProfileActionButtons
-                onEdit={handleEdit}
-                onDownload={handleDownload}
-                onLogout={handleLogout}
-              />
-            </div>
-          </div>
 
           {/* Medical History - Full Width */}
           <div className="mt-6">

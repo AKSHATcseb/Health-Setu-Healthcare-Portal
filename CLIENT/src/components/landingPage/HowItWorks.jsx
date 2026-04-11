@@ -28,12 +28,9 @@ export default function HowItWorks() {
   return (
     <section id="howitworks" className="w-full px-4 sm:px-6 lg:px-12 py-16 sm:py-20 md:py-28 bg-slate-200">
       <div className="max-w-7xl mx-auto">
-        
+
         {/* Header */}
         <div className="text-center mb-12 sm:mb-16 md:mb-20">
-          <p className="text-teal-600 text-xs sm:text-sm font-semibold uppercase tracking-widest mb-3">
-            Simple Process
-          </p>
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-4">
             How It Works
           </h2>
@@ -44,7 +41,7 @@ export default function HowItWorks() {
 
         {/* Steps */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8 relative">
-          
+
           {/* Connecting Line */}
           <div className="hidden md:block absolute top-20 left-0 right-0 h-1 bg-gradient-to-r from-blue-600 via-teal-500 to-blue-600 -z-10"></div>
 
@@ -59,16 +56,15 @@ export default function HowItWorks() {
                 onMouseLeave={() => setHoveredId(null)}
                 className="relative group cursor-pointer"
               >
-                
+
                 {/* Card */}
                 <div
-                  className={`h-full flex flex-col p-8 sm:p-10 rounded-2xl transition-all duration-300 ${
-                    isHovered
-                      ? "bg-gray-900 shadow-lg hover:shadow-xl"
-                      : "bg-white shadow-lg hover:shadow-xl"
-                  }`}
+                  className={`h-full flex flex-col p-8 sm:p-10 rounded-2xl transition-all duration-300 ${isHovered
+                    ? "bg-gray-900 shadow-lg hover:shadow-xl"
+                    : "bg-white shadow-lg hover:shadow-xl"
+                    }`}
                 >
-                  
+
                   {/* Step Number */}
                   {/* <div className="absolute -top-5 -left-5 w-12 h-12 bg-slate-400 text-white rounded-full flex items-center justify-center font-bold text-lg shadow-lg ">
                     {index + 1}
@@ -76,35 +72,32 @@ export default function HowItWorks() {
 
                   {/* Icon */}
                   <div
-                    className={`w-16 h-16 rounded-xl flex items-center justify-center mb-6 transition-all duration-300 ${
-                      isHovered
-                        ? "bg-white text-slate-900 shadow-lg shadow-blue-200"
-                        : "bg-slate-900 text-white"
-                    }`}
+                    className={`w-16 h-16 rounded-xl flex items-center justify-center mb-6 transition-all duration-300 ${isHovered
+                      ? "bg-white text-slate-900 shadow-lg shadow-blue-200"
+                      : "bg-slate-900 text-white"
+                      }`}
                   >
                     <Icon size={32} />
                   </div>
 
                   {/* Title */}
                   <h3
-                    className={`text-xl sm:text-2xl font-bold mb-3 transition-colors duration-300 ${
-                      isHovered ? "text-gray-100" : "text-gray-900"
-                    }`}
+                    className={`text-xl sm:text-2xl font-bold mb-3 transition-colors duration-300 ${isHovered ? "text-gray-100" : "text-gray-900"
+                      }`}
                   >
                     {step.title}
                   </h3>
 
                   {/* Description */}
                   <p
-                    className={`text-sm sm:text-base leading-relaxed mb-6 transition-colors duration-300 ${
-                      isHovered ? "text-gray-400" : "text-gray-700"
-                    }`}
+                    className={`text-sm sm:text-base leading-relaxed mb-6 transition-colors duration-300 ${isHovered ? "text-gray-400" : "text-gray-700"
+                      }`}
                   >
                     {step.desc}
                   </p>
 
                   {/* Bottom Status */}
-                  <div
+                  {/* <div
                     className={`flex items-center gap-2 font-semibold text-sm ${
                       isHovered ? "text-gray-400" : "text-teal-600"
                     }`}
@@ -116,21 +109,11 @@ export default function HowItWorks() {
                       }`}
                     />
                     Ready to go
-                  </div>
+                  </div> */}
                 </div>
               </div>
             );
           })}
-        </div>
-
-        {/* Bottom CTA */}
-        <div className="mt-12 sm:mt-16 md:mt-20 text-center">
-          <p className="text-gray-600 text-sm sm:text-base mb-6">
-            Ready to experience better healthcare?
-          </p>
-          <button className="px-8 sm:px-10 py-3 sm:py-4 bg-slate-900 text-white rounded-full font-bold text-base sm:text-lg hover:shadow-xl hover:shadow-blue-200 hover:scale-105 transition-all duration-300">
-            Get Started Free
-          </button>
         </div>
       </div>
     </section>

@@ -22,4 +22,6 @@ const isHospitalAdmin = async (req, res, next) => {
   next();
 };
 
+const isAdmin = async (req, res, next) => {
+
 module.exports = { isPatient, isHospitalAdmin };

@@ -17,11 +17,11 @@ const appointmentSchema = new mongoose.Schema(
     },
 
     // ✅ Machine assigned
-    machineId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Machine",
-      required: true,
-    },
+    // machineId: {
+    //   type: mongoose.Schema.Types.ObjectId,
+    //   ref: "Machine",
+    //   required: true,
+    // },
 
     // ✅ Appointment Date
     appointmentDate: {
@@ -36,53 +36,45 @@ const appointmentSchema = new mongoose.Schema(
       required: true,
     },
 
-    // ✅ Start Time (Readable)
-    startTime: {
-      type: String, // "09:00"
+    slot: {
+      type: Object,
       required: true,
     },
+
+    // // ✅ Start Time (Readable)
+    // startTime: {
+    //   type: String, // "09:00"
+    //   required: true,
+    // },
 
     // ✅ End Time (Readable)
-    endTime: {
-      type: String, // "13:00"
-      required: true,
-    },
+    // endTime: {
+    //   type: String, // "13:00"
+    //   required: true,
+    // },
 
     // ✅ Minutes (Used ONLY for overlap logic)
-    startMinutes: {
-      type: Number,
-      required: true,
-    },
+    // startMinutes: {
+    //   type: Number,
+    //   required: true,
+    // },
 
-    endMinutes: {
-      type: Number,
-      required: true,
-    },
+    // endMinutes: {
+    //   type: Number,
+    //   required: true,
+    // },
 
     // ✅ Status
     status: {
       type: String,
-      enum: ["reserved", "active", "completed", "cancelled"],
-      default: "reserved",
-    },
-
-    // ✅ Payment Tracking
-    paymentStatus: {
-      type: String,
-      enum: ["pending", "paid", "failed"],
-      default: "paid",
+      enum: ["active", "completed", "cancelled"],
+      default: "active",
     },
 
     // ✅ Amount auto calculated
     amount: {
       type: Number,
       required: true,
-    },
-
-    // ✅ Emergency booking
-    isEmergency: {
-      type: Boolean,
-      default: false,
     },
   },
   { timestamps: true }
@@ -91,19 +83,19 @@ const appointmentSchema = new mongoose.Schema(
 /**
  * ✅ Prevent duplicate exact same start time on same machine
  */
-appointmentSchema.index(
-  { machineId: 1, appointmentDate: 1, startMinutes: 1 },
-  { unique: true }
-);
+// appointmentSchema.index(
+//   { machineId: 1, appointmentDate: 1, startMinutes: 1 },
+//   { unique: true }
+// );
 
 /**
  * ✅ Speed overlap search
  */
-appointmentSchema.index({
-  machineId: 1,
-  appointmentDate: 1,
-  startMinutes: 1,
-  endMinutes: 1,
-});
+// appointmentSchema.index({
+//   machineId: 1,
+//   appointmentDate: 1,
+//   startMinutes: 1,
+//   endMinutes: 1,
+// });
 
 module.exports = mongoose.model("Appointment", appointmentSchema);

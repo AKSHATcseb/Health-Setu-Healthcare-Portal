@@ -7,7 +7,6 @@ import Footer from "../../components/Footer";
 
 export default function LandingPage() {
   useEffect(() => {
-    // Smooth scroll behavior
     document.documentElement.style.scrollBehavior = "smooth";
 
     return () => {
@@ -19,79 +18,64 @@ export default function LandingPage() {
     <div
       className="w-full min-h-screen"
       style={{
-        // very light neutral page background to make dark cards pop
-        background: "linear-gradient(180deg,#fbfcfd 0%, #f8fafc 60%, #ffffff 100%)",
+        background:
+          "linear-gradient(180deg,#fbfcfd 0%, #f8fafc 60%, #ffffff 100%)",
       }}
     >
-      {/* Navigation */}
+      {/* Navbar */}
       <Navbar />
 
-      {/* Hero Section */}
+      {/* Hero */}
       <Hero />
 
-      {/* Features Section */}
-      <Features />
+      {/* Features */}
+      <section id="features" className="scroll-mt-24">
+        <Features />
+      </section>
 
-      {/* How It Works Section */}
-      <HowItWorks />
+      {/* How It Works */}
+      <section id="howitworks" className="scroll-mt-24">
+        <HowItWorks />
+      </section>
 
-      {/* Footer */}
-      <Footer />
+      {/* Footer / Contact */}
+      <section id="contact" className="scroll-mt-24">
+        <Footer />
+      </section>
 
-      {/* Scroll to Top Button */}
+      {/* Scroll to Top */}
       <ScrollToTopButton />
     </div>
   );
 }
 
-// Scroll to Top Button (styling adjusted to match palette)
 function ScrollToTopButton() {
   const [isVisible, setIsVisible] = React.useState(false);
 
   const toggleVisibility = () => {
-    if (window.pageYOffset > 300) {
-      setIsVisible(true);
-    } else {
-      setIsVisible(false);
-    }
+    setIsVisible(window.pageYOffset > 300);
   };
 
   const scrollToTop = () => {
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth",
-    });
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   React.useEffect(() => {
     window.addEventListener("scroll", toggleVisibility);
-    return () => {
-      window.removeEventListener("scroll", toggleVisibility);
-    };
+    return () => window.removeEventListener("scroll", toggleVisibility);
   }, []);
 
   return (
     isVisible && (
       <button
         onClick={scrollToTop}
-        aria-label="Scroll to top"
-        title="Back to top"
-        className="fixed bottom-6 right-6 z-40 p-3 rounded-md shadow-lg transition-transform duration-200"
+        className="fixed bottom-6 right-6 z-40 p-3 rounded-md shadow-lg"
         style={{
-          backgroundColor: "#0b1220", // dark tile color
+          backgroundColor: "#0b1220",
           color: "#f8fafc",
-          border: "1px solid rgba(255,255,255,0.06)",
         }}
       >
-        <svg
-          className="w-6 h-6"
-          fill="currentColor"
-          viewBox="0 0 24 24"
-          xmlns="http://www.w3.org/2000/svg"
-          aria-hidden="true"
-        >
-          <path d="M12 3l7 9H5l7-9zM5 13h14v6H5v-6z" />
-        </svg>
+        ↑
       </button>
     )
   );

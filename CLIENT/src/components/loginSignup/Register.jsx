@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import api from "../../services/api";
 import { useNavigate } from "react-router-dom";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Heart } from "lucide-react";
 import { HeartPulseBadge, ShieldLock, CalendarCheckIcon } from "../CustomIcons";
 
 /*
@@ -101,7 +101,7 @@ export default function Register() {
     >
       {/* Top bar */}
       <header className="w-full px-10 py-10 bg-slate-200">
-        <div className="max-w-7xl sm:px-6 lg:px-12 flex items-center justify-between">
+        <div className=" sm:px-6 lg:px-12 flex items-center justify-center">
           <div
             className="flex items-center gap-3 cursor-pointer"
             onClick={goHome}
@@ -109,28 +109,14 @@ export default function Register() {
             tabIndex={0}
             aria-label="HealthSetu home"
           >
-            <div
-              className="w-12 h-12 rounded-lg flex items-center justify-center shadow-sm"
-              style={{ background: "linear-gradient(180deg,#0b1220,#111827)" }}
-            >
-              <HeartPulseBadge className="w-6 h-6 text-white" />
+            <div className="flex items-center gap-2 sm:gap-3 cursor-pointer group">
+              <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-teal-500 rounded-full flex items-center justify-center shadow-md group-hover:shadow-lg group-hover:shadow-blue-200 transition-all duration-300">
+                <Heart size={20} className="text-white fill-white" />
+              </div>
+              <h1 className="font-bold text-lg sm:text-2xl bg-gradient-to-r from-blue-700 to-teal-600 bg-clip-text text-transparent">
+                HealthSetu
+              </h1>
             </div>
-            <div className="hidden sm:block">
-              <h1 className="font-extrabold text-slate-900 text-lg">HealthSetu</h1>
-              <p className="text-xs text-slate-500 -mt-0.5">Care for Patients & Families</p>
-            </div>
-          </div>
-
-          <div className="hidden sm:flex items-center gap-4">
-            <button onClick={goHome} className="text-sm text-slate-700 hover:text-slate-900 transition">
-              Home
-            </button>
-            <button
-              onClick={goLogin}
-              className="px-3 py-2 rounded-md bg-[#0b1220] text-white text-sm font-semibold shadow-sm hover:brightness-105 transition"
-            >
-              Sign in
-            </button>
           </div>
 
           <div className="sm:hidden">
@@ -189,7 +175,7 @@ export default function Register() {
                 <label className="block text-sm font-medium mb-1 text-slate-200">Email</label>
                 <div className="relative">
                   <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M2 4h20v16H2z"/></svg>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M2 4h20v16H2z" /></svg>
                   </div>
                   <input
                     type="email"

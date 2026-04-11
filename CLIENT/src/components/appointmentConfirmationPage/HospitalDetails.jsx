@@ -45,6 +45,14 @@ export default function HospitalDetails({ hospitalData }) {
           </div>
         </div>
 
+        <div className="flex gap-4 items-start">
+          <Phone size={20} className="text-blue-500 flex-shrink-0 mt-1" />
+          <div>
+            <p className="text-sm text-gray-600 font-semibold mb-1">UPI ID</p>
+            <p className="text-gray-700">{hospitalData.upiID}</p>
+          </div>
+        </div>
+
         {/* Operating Hours */}
         {/* <div className="flex gap-4 items-start">
           <Clock size={20} className="text-orange-500 flex-shrink-0 mt-1" />

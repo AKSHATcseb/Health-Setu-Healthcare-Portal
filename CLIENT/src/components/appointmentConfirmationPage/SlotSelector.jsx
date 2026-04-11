@@ -20,6 +20,10 @@ export default function SlotSelector({ hospital, onSelectSlot }) {
             return h * 60 + m;
         };
 
+        const isOverlapping = (s1, e1, s2, e2) => {
+            return s1 < e2 && s2 < e1;
+        };
+
         hospital.availableSlots.forEach((slot) => {
             if (!slot) return;
             // console.log("Processing slot:", slot);

@@ -6,6 +6,8 @@ export default function UpcomingAppointmentsCard({
   onApprove,
   onCancel,
 }) {
+  console.log("Rendering UpcomingAppointmentsCard with appointments:", appointments);
+
   const formatTime = (time) => {
     return new Date(`2024-01-01 ${time}`).toLocaleTimeString("en-US", {
       hour: "2-digit",

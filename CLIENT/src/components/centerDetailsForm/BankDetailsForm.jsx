@@ -7,37 +7,20 @@ export default function BankDetailsForm({
   errors,
   setErrors,
 }) {
-  const validateAccountNumber = (accountNumber) => {
-    return accountNumber && accountNumber.replace(/\D/g, "").length >= 9;
-  };
+  
+const validateUpiID = (upiID) =>
+  /^[a-zA-Z0-9._-]{2,256}@[a-zA-Z]{2,64}$/.test(upiID);
 
-  const validateIFSC = (ifsc) => {
-    return ifsc && /^[A-Z]{4}0[A-Z0-9]{6}$/.test(ifsc);
-  };
-
-  const handleAccountNumberChange = (e) => {
+  const handleUpiIDChange = (e) => {
     const value = e.target.value;
-    setFormData({ ...formData, accountNumber: value });
-    if (value && !validateAccountNumber(value)) {
+    setFormData({ ...formData, upiID: value });
+    if (value && !validateUpiID(value)) {
       setErrors({
         ...errors,
-        accountNumber: "Invalid account number",
+        upiID: "Invalid UPI ID format",
       });
     } else {
-      setErrors({ ...errors, accountNumber: "" });
-    }
-  };
-
-  const handleIFSCChange = (e) => {
-    const value = e.target.value.toUpperCase();
-    setFormData({ ...formData, ifscCode: value });
-    if (value && !validateIFSC(value)) {
-      setErrors({
-        ...errors,
-        ifscCode: "Invalid IFSC code format",
-      });
-    } else {
-      setErrors({ ...errors, ifscCode: "" });
+      setErrors({ ...errors, upiID: "" });
     }
   };
 
@@ -71,26 +54,10 @@ export default function BankDetailsForm({
           />
         </div>
 
-        {/* Bank Name */}
+        {/* UPI ID */}
         <div>
           <label className="block text-sm font-semibold text-gray-700 mb-2">
-            Bank Name <span className="text-red-500">*</span>
-          </label>
-          <input
-            type="text"
-            placeholder="Enter bank name"
-            value={formData.bankName}
-            onChange={(e) =>
-              setFormData({ ...formData, bankName: e.target.value })
-            }
-            className="w-full px-4 py-2.5 rounded-lg border-2 border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none text-sm"
-          />
-        </div>
-
-        {/* Account Number */}
-        <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-2">
-            Account Number <span className="text-red-500">*</span>
+            UPI ID <span className="text-red-500">*</span>
           </label>
           <div className="relative">
             <CreditCard
@@ -99,40 +66,18 @@ export default function BankDetailsForm({
             />
             <input
               type="text"
-              placeholder="Enter account number"
-              value={formData.accountNumber}
-              onChange={handleAccountNumberChange}
+              placeholder="Enter UPI ID"
+              value={formData.upiID}
+              onChange={handleUpiIDChange}
               className={`w-full pl-10 pr-4 py-2.5 rounded-lg border-2 transition-all duration-300 outline-none text-sm ${
-                errors.accountNumber
+                errors.upiID
                   ? "border-red-500 bg-red-50 focus:border-red-600 focus:ring-2 focus:ring-red-200"
                   : "border-gray-300 bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
               }`}
             />
           </div>
-          {errors.accountNumber && (
-            <p className="text-xs text-red-600 mt-1">{errors.accountNumber}</p>
-          )}
-        </div>
-
-        {/* IFSC Code */}
-        <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-2">
-            IFSC Code <span className="text-red-500">*</span>
-          </label>
-          <input
-            type="text"
-            placeholder="E.g., SBIN0001234"
-            value={formData.ifscCode}
-            onChange={handleIFSCChange}
-            maxLength="11"
-            className={`w-full px-4 py-2.5 rounded-lg border-2 transition-all duration-300 outline-none text-sm uppercase ${
-              errors.ifscCode
-                ? "border-red-500 bg-red-50 focus:border-red-600 focus:ring-2 focus:ring-red-200"
-                : "border-gray-300 bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
-            }`}
-          />
-          {errors.ifscCode && (
-            <p className="text-xs text-red-600 mt-1">{errors.ifscCode}</p>
+          {errors.upiID && (
+            <p className="text-xs text-red-600 mt-1">{errors.upiID}</p>
           )}
         </div>
       </div>

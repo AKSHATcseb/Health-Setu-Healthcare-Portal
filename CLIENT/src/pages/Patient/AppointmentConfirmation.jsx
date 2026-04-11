@@ -5,12 +5,13 @@ import HospitalDetails from "../../components/appointmentConfirmationPage/Hospit
 import PaymentMethod from "../../components/appointmentConfirmationPage/PaymentMethod";
 import AppointmentSummary from "../../components/appointmentConfirmationPage/AppointmentSummary";
 import ConfirmationButtons from "../../components/appointmentConfirmationPage/ConfirmationButtons";
-import { useLocation, useParams } from "react-router-dom";
+import { useLocation, useParams, useNavigate } from "react-router-dom";
 import { CheckCircle } from "lucide-react";
 import api from "../../services/api";
 
 export default function AppointmentConfirmation() {
   const location = useLocation();
+  const navigate = useNavigate();
   const { hospital, appointment } = location.state || {};
 
   const { patientId, id } = useParams();
@@ -83,12 +84,41 @@ export default function AppointmentConfirmation() {
 
   const handleConfirm = async () => {
     setIsLoading(true);
+
+    const slotHours = selectedSlot?.type === "4h" ? 4 :
+                      selectedSlot?.type === "6h" ? 6 :
+                      selectedSlot?.type === "pd" ? 12 : 0;
+
+    const amount = selectedSlot?.type === "4h" ? hospitalData?.priceFor4Hrs :
+                   selectedSlot?.type === "6h" ? hospitalData?.priceFor6Hrs :
+                   selectedSlot?.type === "pd" ? hospitalData?.priceForPD : 0;
+
     try {
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-      console.log("Confirmed:", selectedPaymentMethod);
+      console.log("Booking with:", {
+      appointment: appointment,
+      patientId,
+      hospitalId: id,
+      appointmentDate: appointment?.date,
+      durationHours: slotHours,
+      slot: selectedSlot,
+      amount: amount
+    });
+      const res = await api.post("/api/appointment/confirm", {
+        patientId,
+        hospitalId: id,
+        appointmentDate: appointment?.date,
+        durationHours: slotHours,
+        slot: selectedSlot,
+        amount: amount,
+      });
+
+      console.log("Response:", res.data);
+
       setConfirmationStep("success");
+
     } catch (error) {
-      console.error(error);
+      console.error("Booking failed:", error.response?.data || error.message);
+      alert(error.response?.data?.message || "Booking failed");
     } finally {
       setIsLoading(false);
     }
@@ -105,6 +135,11 @@ export default function AppointmentConfirmation() {
         <div className="bg-white p-8 rounded-xl text-center shadow-lg">
           <CheckCircle size={48} className="text-green-500 mx-auto mb-4" />
           <h2 className="text-2xl font-bold">Appointment Confirmed</h2>
+          <button 
+          onClick={() => navigate(`/patient/dashboard/${patientId}`)}
+          className="bg-green-600 text-white rounded-xl px-4 py-2 mt-5 shadow shadow-slate-500">
+            Done
+          </button>
         </div>
       </div>
     );
@@ -129,8 +164,8 @@ export default function AppointmentConfirmation() {
 
 
       <PaymentMethod
-        selectedMethod={selectedPaymentMethod}
-        setSelectedMethod={setSelectedPaymentMethod}
+        selectedSlot={selectedSlot}
+        hospitalData={hospitalData}
       />
 
       <ConfirmationButtons

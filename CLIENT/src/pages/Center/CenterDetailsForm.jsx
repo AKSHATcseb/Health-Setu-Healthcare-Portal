@@ -43,9 +43,7 @@ export default function CompleteHospitalProfile({ isEditMode = false }) {
     latitude: null,
     longitude: null,
     accountHolderName: "",
-    bankName: "",
-    accountNumber: "",
-    ifscCode: "",
+    upiID: "",
   });
 
   const [errors, setErrors] = useState({});
@@ -110,9 +108,7 @@ export default function CompleteHospitalProfile({ isEditMode = false }) {
           latitude: hospital.latitude ?? prev.latitude,
           longitude: hospital.longitude ?? prev.longitude,
           accountHolderName: hospital.accountHolderName ?? prev.accountHolderName,
-          bankName: hospital.bankName ?? prev.bankName,
-          accountNumber: hospital.accountNumber ?? prev.accountNumber,
-          ifscCode: hospital.ifscCode ?? prev.ifscCode,
+          upiID: hospital.upiID ?? prev.upiID,
         }));
       } catch (err) {
         console.error(err);
@@ -178,9 +174,8 @@ export default function CompleteHospitalProfile({ isEditMode = false }) {
     }
 
     if (step === 5) {
-      const accountOk = (formData.accountNumber || "").toString().trim().length >= 6;
-      const ifscOk = (formData.ifscCode || "").toString().trim().length >= 4;
-      return accountOk && ifscOk;
+      const upiOk = (formData.upiID || "").trim().length >= 2;
+      return upiOk;
     }
 
     return false;

@@ -1,82 +1,114 @@
-
 import React, { useState } from "react";
 import { Menu, X, Heart } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const scrollToSection = (id) => {
+    // If already on landing page
+    if (location.pathname === "/") {
+      const element = document.getElementById(id);
+      if (element) {
+        element.scrollIntoView({ behavior: "smooth" });
+      }
+    } else {
+      // Navigate first, then scroll
+      navigate("/");
+
+      setTimeout(() => {
+        const element = document.getElementById(id);
+        if (element) {
+          element.scrollIntoView({ behavior: "smooth" });
+        }
+      }, 300);
+    }
+
+    setOpen(false); // close mobile menu
+  };
 
   return (
-    <nav className="w-full py-2 sticky top-0 z-50 bg-slate-200 ">
+    <nav className="w-full py-2 sticky top-0 z-50 bg-slate-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 py-4">
         <div className="flex items-center justify-between">
-          
+
           {/* Logo */}
-          <div className="flex items-center gap-2 sm:gap-3 cursor-pointer group">
-            <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-teal-500 rounded-full flex items-center justify-center shadow-md group-hover:shadow-lg group-hover:shadow-blue-200 transition-all duration-300">
+          <div
+            onClick={() => navigate("/")}
+            className="flex items-center gap-2 cursor-pointer"
+          >
+            <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-teal-500 rounded-full flex items-center justify-center">
               <Heart size={20} className="text-white fill-white" />
             </div>
-            <h1 className="font-bold text-lg sm:text-2xl bg-gradient-to-r from-blue-700 to-teal-600 bg-clip-text text-transparent">
+            <h1 className="font-bold text-lg sm:text-2xl text-blue-700">
               HealthSetu
             </h1>
           </div>
 
-          {/* Desktop Navigation */}
+          {/* Desktop Nav */}
           <div className="hidden lg:flex items-center gap-12">
-            <a href="#features" className="text-slate-600 font-medium hover:text-blue-950 transition-colors duration-300">
+            <button onClick={() => scrollToSection("features")}>
               Features
-            </a>
-            <a href="#howitworks" className="text-slate-600 font-medium hover:text-blue-950 transition-colors duration-300">
+            </button>
+            <button onClick={() => scrollToSection("howitworks")}>
               How It Works
-            </a>
-            <a href="#contact" className="text-slate-600 font-medium hover:text-blue-950 transition-colors duration-300">
+            </button>
+            <button onClick={() => scrollToSection("contact")}>
               Contact
-            </a>
+            </button>
           </div>
 
           {/* Buttons */}
-          <div className="hidden lg:flex items-center gap-4">
+          <div className="hidden lg:flex gap-4">
             <button
-            onClick={() => navigate("/login")}
-            className="px-6 py-3 text-slate-800 font-semibold border border-slate-800 rounded-full hover:bg-blue-50 transition-all duration-300">
+              onClick={() => navigate("/login")}
+              className="px-6 py-3 bg-slate-800 text-white rounded-full hover:bg-slate-950 cursor-pointer transition"
+            >
               Sign In
-            </button>
-            <button className="px-6 py-3 bg-slate-800 text-white font-semibold rounded-full hover:shadow-lg hover:scale-105 transition-all duration-300">
-              Get Started
             </button>
           </div>
 
-          {/* Mobile Menu Button */}
+          {/* Mobile Toggle */}
           <button
             onClick={() => setOpen(!open)}
-            className="lg:hidden p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            className="lg:hidden p-2"
           >
-            {open ? <X size={24} className="text-gray-700" /> : <Menu size={24} className="text-gray-700" />}
+            {open ? <X size={24} /> : <Menu size={24} />}
           </button>
         </div>
 
         {/* Mobile Menu */}
         {open && (
-          <div className="lg:hidden mt-4 pb-4 border-t border-gray-200 pt-4 space-y-3 animate-in fade-in slide-in-from-top-2 duration-200">
-            <a href="#features" className="text-center block text-gray-700 font-medium hover:text-blue-600 py-2">
+          <div className="lg:hidden mt-4 space-y-3 border-b-2 border-slate-300 pb-4">
+            <button
+              onClick={() => scrollToSection("features")}
+              className="block w-full text-center hover:text-slate-500"
+            >
               Features
-            </a>
-            <a href="#howitworks" className="text-center block text-gray-700 font-medium hover:text-blue-600 py-2">
+            </button>
+            <button
+              onClick={() => scrollToSection("howitworks")}
+              className="block w-full text-center"
+            >
               How It Works
-            </a>
-            <a href="#contact" className="text-center block text-gray-700 font-medium hover:text-blue-600 py-2">
+            </button>
+            <button
+              onClick={() => scrollToSection("contact")}
+              className="block w-full text-center"
+            >
               Contact
-            </a>
-            <div className="flex flex-col gap-3 pt-3">
-              <button className="w-full px-6 py-2 text-slate-800 font-semibold border border-slate-800 rounded-full hover:bg-blue-50 transition-all duration-300">
-                Sign In
-              </button>
-              <button className="w-full px-6 py-2 bg-slate-900 text-white font-semibold rounded-full hover:shadow-lg hover:shadow-blue-200 hover:scale-105 transition-all duration-300">
-                Get Started
-              </button>
+            </button>
+
+            <div className="flex flex-col gap-3 pt-3"> 
+              <button className="w-full px-6 py-2 bg-slate-900 text-white font-semibold rounded-full hover:shadow-lg hover:shadow-blue-200 hover:scale-105 transition-all duration-300"> 
+                Sign In 
+              </button> 
             </div>
+
           </div>
+
         )}
       </div>
     </nav>

@@ -27,7 +27,7 @@ export default function AppointmentsList({
       </div>
       {filteredAppointments.map((appointment) => (
         <AppointmentCard
-          key={appointment.id}
+          key={appointment._id}
           appointment={appointment}
           onEdit={onEdit}
           onCancel={onCancel}

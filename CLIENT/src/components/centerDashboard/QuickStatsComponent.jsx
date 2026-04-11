@@ -1,7 +1,7 @@
 import React from "react";
 import { Calendar, CheckCircle, Clock, AlertCircle, TrendingUp } from "lucide-react";
 
-export default function QuickStatsComponent({ stats }) {
+export default function QuickStatsComponent({ appointments }) {
   const statItems = [
     {
       label: "Total Appointments",

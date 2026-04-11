@@ -11,29 +11,55 @@ import api, { setAuthToken } from "../../services/api";
 export default function PatientDashboard() {
   const navigate = useNavigate();
   const { id } = useParams(); // patient id from URL: /patient/dashboard/:id
+  // console.log("PatientDashboard component mounted with id param:", id);
 
   const [patient, setPatient] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [appointmentsData, setAppointmentsData] = useState([]);
+  
 
   // Build a "user" object used by Navbar/Hero (prefer patient data)
   const userFromPatient = patient
-    ? { name: patient.fullName || `${patient.firstName || ""} ${patient.lastName || ""}`.trim(), email: patient.email }
+    ? { name: patient.fullName || `${patient.firstName || ""} ${patient.lastName || ""}`.trim(), email: patient.email, id: patient.userId }
     : null;
 
+    // console.log("Derived user object for Navbar/Hero:", userFromPatient);
+
   // Fallback user if patient data not available yet
-  const userFallback = { name: "Patient", email: "" };
+  const userFallback = { name: "Patient", email: "", id: "" };
 
 // (snippet to replace the existing useEffect block in PatientDashboard)
 useEffect(() => {
-  console.log("PatientDashboard page loaded");
+  const fetchAppointments = async () => {
+      try {
+        setLoading(true);
+        const res = await api.get(
+          `/api/appointment/all/${id}`
+        );
+
+        const backendData = res.data.appointments;
+
+        setAppointmentsData(backendData || []);
+        // console.log("Fetched appointments data:", backendData);
+
+      } catch (error) {
+        console.error("Fetch appointments error:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (id) fetchAppointments();
+
+  // console.log("PatientDashboard page loaded");
   const fetchPatient = async () => {
     setLoading(true);
     setError("");
     try {
       // prefer session token (non-persistent) then local token
       const token = sessionStorage.getItem("token") || localStorage.getItem("token") || null;
-      console.log("Token found (session/local):", token);
+      // console.log("Token found (session/local):", token);
       if (token) {
         setAuthToken(token);
       } else {
@@ -48,7 +74,7 @@ useEffect(() => {
       }
 
       // call backend
-      console.log("Calling GET /api/patient/" + id);
+      // console.log("Calling GET /api/patient/" + id);
       const res = await api.get(`/api/patient/${id}`);
       // console.log("GET /api/patient/:id response:", res.data);
       setPatient(res.data?.patientFromPatientModel ?? res.data ?? null);
@@ -92,7 +118,12 @@ useEffect(() => {
   };
 
   fetchPatient();
+  fetchAppointments();
 }, [id, navigate]);
+
+useEffect(() => {
+    
+  }, [id]);
 
   const handleLogout = async () => {
     try {
@@ -141,7 +172,7 @@ useEffect(() => {
 
   // Use patient data if available, otherwise fallback
   const userToShow = userFromPatient || userFallback;
-  console.log("PatientDashboard rendering with user:", userToShow, "patient:", patient);
+  // console.log("PatientDashboard rendering with user:", userToShow, "patient:", patient);
 
   return (
     <div className="w-full min-h-screen bg-slate-50 flex flex-col">
@@ -152,10 +183,9 @@ useEffect(() => {
       />
 
       <div className="flex-1">
-        <Hero user={userToShow} patient={patient} />
+        <Hero user={userToShow} appointmentsData={appointmentsData} patient={patient} />
         <QuickActions patient={patient} />
         {/* <HealthOverview patient={patient} /> */}
-        <RecentAppointments patient={patient} />
       </div>
 
       <Footer />

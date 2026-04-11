@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Menu, X, LogOut, User, Heart } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 
 /**
  * Navbar (dark / charcoal redesign)
@@ -9,7 +9,7 @@ import { useNavigate } from "react-router-dom";
  * - No logic changes; only styling/markup updated for a professional dark look
  * - Responsive: compact mobile menu, full desktop menu with account dropdown
  */
-export default function Navbar({ user = { name: "Patient", email: "" }, onLogout, onUpdateProfile }) {
+export default function Navbar({ user = { name: "", email: "", id: "" }, onLogout, onUpdateProfile }) {
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [accountDropdown, setAccountDropdown] = useState(false);
@@ -17,6 +17,7 @@ export default function Navbar({ user = { name: "Patient", email: "" }, onLogout
 
   // close dropdown on outside click
   useEffect(() => {
+    console.log("user:", user);
     function handleOutside(e) {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
         setAccountDropdown(false);
@@ -46,17 +47,17 @@ export default function Navbar({ user = { name: "Patient", email: "" }, onLogout
 
           {/* Desktop nav links */}
           <div className="hidden lg:flex items-center gap-8">
-            <a href="#appointments" className="text-slate-600 font-medium hover:text-blue-950 transition-colors duration-300">
+            <Link
+              to={`/patient/appointments/${user.id}`}
+              className="text-slate-600 font-medium hover:text-blue-950 transition-colors duration-300"
+            >
               Appointments
-            </a>
+            </Link>
             <a href="#history" className="text-slate-600 font-medium hover:text-blue-950 transition-colors duration-300">
               History
             </a>
             <a href="#reports" className="text-slate-600 font-medium hover:text-blue-950 transition-colors duration-300">
               Reports
-            </a>
-            <a href="#payments" className="text-slate-600 font-medium hover:text-blue-950 transition-colors duration-300">
-              Payments
             </a>
           </div>
 
@@ -92,11 +93,10 @@ export default function Navbar({ user = { name: "Patient", email: "" }, onLogout
 
                   <button
                     onClick={() => {
-                      onUpdateProfile && onUpdateProfile();
                       setAccountDropdown(false);
+                      navigate("/patient/profile");
                     }}
                     className="w-full text-left px-4 py-3 hover:bg-white/6 transition flex items-center gap-3 text-white"
-                    role="menuitem"
                   >
                     <User size={16} className="text-white/80" />
                     Update profile
@@ -134,10 +134,15 @@ export default function Navbar({ user = { name: "Patient", email: "" }, onLogout
         {mobileMenuOpen && (
           <div className="lg:hidden mt-2 pb-4 border-t border-white/6">
             <div className="py-3 grid gap-2">
-              <a href="#appointments" className="block px-3 py-2 rounded-md text-white hover:bg-white/6">Appointments</a>
-              <a href="#history" className="block px-3 py-2 rounded-md text-white/80 hover:bg-white/6">History</a>
-              <a href="#reports" className="block px-3 py-2 rounded-md text-white/80 hover:bg-white/6">Reports</a>
-              <a href="#payments" className="block px-3 py-2 rounded-md text-white/80 hover:bg-white/6">Payments</a>
+              <Link
+                to={`/patient/appointments/${user.id}`}
+                className="text-slate-600 font-medium hover:text-blue-950 transition-colors duration-300"
+              >
+                Appointments
+              </Link>
+              <a href="#history" className="text-slate-600 font-medium hover:text-blue-950 transition-colors duration-300">History</a>
+              <a href="#reports" className="text-slate-600 font-medium hover:text-blue-950 transition-colors duration-300">Reports</a>
+              <a href="#payments" className="text-slate-600 font-medium hover:text-blue-950 transition-colors duration-300">Payments</a>
 
               <div className="mt-2 border-t border-white/6 pt-3">
                 <button

@@ -11,8 +11,10 @@ import { Calendar, FileText, CreditCard } from "lucide-react";
  *
  * Props:
  * - user: { name, email, ... } (optional)
+ * - appointmentsData: Array of appointment objects
+ * - patient: Patient object
  */
-export default function Hero({ user = {} }) {
+export default function Hero({ user = {}, appointmentsData = [], patient }) {
   const hour = new Date().getHours();
   const greeting = hour < 12 ? "Good Morning" : hour < 18 ? "Good Afternoon" : "Good Evening";
   const firstName = user?.name ? String(user.name).split(" ")[0] : "there";
@@ -65,23 +67,17 @@ export default function Hero({ user = {} }) {
           <div className="lg:col-span-5">
             <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-1 gap-4">
               <StatCard
-                className="bg-white"
-                label="Next appointment"
-                value="—"
-                accent="linear-gradient(90deg,#0ea5e9,#0369a1)"
-                Icon={Calendar}
-              />
-              <StatCard
                 label="Total appointments"
-                value="12"
+                value={appointmentsData.length || 0}
                 accent="linear-gradient(90deg,#10b981,#06b6d4)"
                 Icon={Calendar}
               />
               <StatCard
-                label="Pending payments"
-                value="₹2,500"
-                accent="linear-gradient(90deg,#f97316,#fb7185)"
-                Icon={CreditCard}
+                className="bg-white"
+                label="Next appointment"
+                value={appointmentsData.filter(a => a.status === "active").length}
+                accent="linear-gradient(90deg,#0ea5e9,#0369a1)"
+                Icon={Calendar}
               />
             </div>
           </div>
@@ -95,7 +91,7 @@ export default function Hero({ user = {} }) {
 function StatCard({ label, value, accent, Icon }) {
   return (
     <div
-      className="rounded-full p-4  ">
+      className="rounded-full px-4 py-2 ">
       <div className="flex items-start justify-between">
         <div>
           <p className="text-xs text-slate-900 uppercase tracking-wide">{label}</p>

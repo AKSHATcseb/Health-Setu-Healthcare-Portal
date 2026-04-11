@@ -143,29 +143,9 @@ export default function HospitalInfoCard({ hospitalInfo }) {
         <div className="flex items-start gap-3 pb-3 border-b border-gray-200">
           <Wallet2 size={18} className="text-sky-800 flex-shrink-0 mt-1" />
           <div>
-            <p className="text-xs text-gray-600 font-semibold mb-1">Bank Name</p>
+            <p className="text-xs text-gray-600 font-semibold mb-1">UPI ID</p>
             <p className="text-sm text-gray-900">
-              {hospitalInfo.bankName}
-            </p>
-          </div>
-        </div>
-
-        <div className="flex items-start gap-3 pb-3 border-b border-gray-200">
-          <Wallet2 size={18} className="text-sky-800 flex-shrink-0 mt-1" />
-          <div>
-            <p className="text-xs text-gray-600 font-semibold mb-1">Account Number</p>
-            <p className="text-sm text-gray-900">
-              {hospitalInfo.accountNumber}
-            </p>
-          </div>
-        </div>
-
-        <div className="flex items-start gap-3 pb-3 border-b border-gray-200">
-          <Wallet2 size={18} className="text-sky-800 flex-shrink-0 mt-1" />
-          <div>
-            <p className="text-xs text-gray-600 font-semibold mb-1">IFSC Code</p>
-            <p className="text-sm text-gray-900">
-              {hospitalInfo.ifscCode}
+              {hospitalInfo.upiID}
             </p>
           </div>
         </div>

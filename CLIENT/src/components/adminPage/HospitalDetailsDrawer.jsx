@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react";
+import { X } from "lucide-react";
 
 export default function HospitalDetailsDrawer({
   open,
   item,
   onClose = () => {},
   onAction = () => {},
-  actionsDisabled = false, // NEW: when true, disable all action buttons / inputs
+  actionsDisabled = false,
 }) {
   const [noteMode, setNoteMode] = useState(false);
   const [note, setNote] = useState("");
@@ -20,65 +21,73 @@ export default function HospitalDetailsDrawer({
   if (!open || !item) return null;
 
   const Section = ({ title, children }) => (
-    <div className="border-b pb-4">
-      <h3 className="text-sm font-semibold text-gray-600 mb-2">{title}</h3>
-      <div className="text-sm text-gray-800 space-y-1">{children}</div>
+    <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-4">
+      <h3 className="text-sm font-semibold text-slate-600 mb-3">{title}</h3>
+      <div className="text-sm text-slate-800 space-y-2">{children}</div>
     </div>
   );
 
   const renderSlots = (slots = []) =>
     slots.length ? (
       slots.map((s, i) => (
-        <div key={i} className="text-xs bg-gray-100 px-2 py-1 rounded inline-block mr-2 mb-2">
+        <span
+          key={i}
+          className="text-xs bg-slate-100 text-slate-700 px-2 py-1 rounded-md mr-2 mb-2 inline-block"
+        >
           {s.start} - {s.end}
-        </div>
+        </span>
       ))
     ) : (
-      <span className="text-gray-400">No slots</span>
+      <span className="text-slate-400 text-xs">No slots</span>
     );
 
-  // disable actions when either global actionsDisabled is true
-  const disabledAll = !!actionsDisabled;
-
   return (
-    <div className="fixed inset-0 z-40 flex">
-      <div className="w-full max-w-3xl ml-auto bg-white shadow-xl h-full overflow-auto">
+    <div className="fixed inset-0 z-50 flex">
+
+      {/* DRAWER */}
+      <div className="w-full sm:max-w-2xl lg:max-w-3xl ml-auto bg-slate-50 h-full overflow-auto shadow-2xl">
+
         {/* HEADER */}
-        <div className="p-6 border-b">
-          <div className="flex justify-between">
-            <div>
-              <h2 className="text-xl font-semibold">{item.hospitalName}</h2>
-              <p className="text-sm text-gray-500">{item.email}</p>
-            </div>
-            <button
-              onClick={onClose}
-              className="text-sm text-gray-600"
-              aria-disabled={false}
-            >
-              Close
-            </button>
+        <div className="sticky top-0 z-10 bg-white border-b px-4 sm:px-6 py-4 flex justify-between items-start">
+          <div>
+            <h2 className="text-lg sm:text-xl font-semibold text-slate-800">
+              {item.hospitalName}
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-500">{item.email}</p>
           </div>
+
+          <button
+            onClick={onClose}
+            className="p-2 rounded-md hover:bg-slate-100 transition"
+          >
+            <X size={18} className="text-slate-600" />
+          </button>
         </div>
 
         {/* BODY */}
-        <div className="p-6 space-y-6">
+        <div className="p-4 sm:p-6 space-y-4">
 
-          {/* BASIC INFO */}
+          {/* BASIC */}
           <Section title="Basic Information">
-            <div>Registration: {item.registrationNumber}</div>
-            <div>Phone: {item.phone}</div>
-            <div>Status: {item.status}</div>
+            <div><span className="font-medium">Registration:</span> {item.registrationNumber}</div>
+            <div><span className="font-medium">Phone:</span> {item.phone}</div>
+            <div>
+              <span className="font-medium">Status:</span>{" "}
+              <span className="px-2 py-1 text-xs rounded bg-slate-200">
+                {item.status}
+              </span>
+            </div>
           </Section>
 
           {/* LOCATION */}
           <Section title="Location">
-            <div>Address: {item.address || "-"}</div>
+            <div>{item.address || "-"}</div>
           </Section>
 
           {/* DIALYSIS */}
           <Section title="Dialysis Details">
-            <div>Type: {item.dialysisType}</div>
-            <div>Seats: {item.dialysisSeats}</div>
+            <div><span className="font-medium">Type:</span> {item.dialysisType}</div>
+            <div><span className="font-medium">Seats:</span> {item.dialysisSeats}</div>
           </Section>
 
           {/* PRICING */}
@@ -88,14 +97,17 @@ export default function HospitalDetailsDrawer({
             <div>Peritoneal: ₹ {item.priceForPD ?? "-"}</div>
           </Section>
 
-          {/* OPERATING HOURS */}
+          {/* OPERATING */}
           <Section title="Operating Days">
             {item.is24x7 ? (
-              <div>24x7 Open</div>
+              <div className="text-green-600 font-medium">24x7 Open</div>
             ) : (
               Object.entries(item.operatingHours || {}).map(([day, val]) => (
-                <div key={day}>
-                  {day}: {val?.closed ? "Closed" : "Open"}
+                <div key={day} className="flex justify-between">
+                  <span className="capitalize">{day}</span>
+                  <span className={val?.closed ? "text-red-500" : "text-green-600"}>
+                    {val?.closed ? "Closed" : "Open"}
+                  </span>
                 </div>
               ))
             )}
@@ -104,128 +116,46 @@ export default function HospitalDetailsDrawer({
           {/* SLOTS */}
           <Section title="Dialysis Slots">
             <div>
-              <p className="font-medium">4 Hour Slots</p>
+              <p className="font-medium mb-1">4 Hour Slots</p>
               {renderSlots(item?.slots?.slots4h)}
             </div>
 
-            <div>
-              <p className="font-medium mt-2">6 Hour Slots</p>
+            <div className="mt-2">
+              <p className="font-medium mb-1">6 Hour Slots</p>
               {renderSlots(item?.slots?.slots6h)}
             </div>
           </Section>
 
-          {/* BANK DETAILS */}
+          {/* BANK */}
           <Section title="Bank Details">
             <div>Account Holder: {item.accountHolderName || "-"}</div>
-            <div>Bank: {item.bankName || "-"}</div>
-            <div>Account No: {item.accountNumber || "-"}</div>
-            <div>IFSC: {item.ifscCode || "-"}</div>
+            <div>UPI ID: {item.upiID || "-"}</div>
           </Section>
 
           {/* DOCUMENTS */}
-          {item.documents?.length ? (
+          {item.documents?.length > 0 && (
             <Section title="Documents">
               {item.documents.map((d, i) => (
-                <div key={i}>
-                  <a
-                    href={d.url}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="text-indigo-600"
-                  >
-                    {d.name || d.url}
-                  </a>
-                </div>
+                <a
+                  key={i}
+                  href={d.url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="block text-sm text-blue-600 hover:underline"
+                >
+                  {d.name || d.url}
+                </a>
               ))}
             </Section>
-          ) : null}
-        </div>
-
-        {/* FOOTER ACTIONS */}
-        <div className="p-6 border-t flex flex-col gap-3">
-          {noteMode ? (
-            <>
-              <textarea
-                value={note}
-                onChange={(e) => setNote(e.target.value)}
-                placeholder="Describe required changes..."
-                className="w-full p-2 border rounded-md"
-                disabled={disabledAll}
-                aria-disabled={disabledAll}
-              />
-              <div className="flex gap-2">
-                <button
-                  onClick={() => {
-                    if (disabledAll) return;
-                    onAction("changes_requested", item, note);
-                  }}
-                  disabled={disabledAll}
-                  aria-disabled={disabledAll}
-                  className={`px-4 py-2 rounded-md text-white ${
-                    disabledAll ? "bg-indigo-300 cursor-not-allowed" : "bg-indigo-600 hover:bg-indigo-700"
-                  }`}
-                >
-                  Send changes
-                </button>
-                <button
-                  onClick={() => setNoteMode(false)}
-                  className="px-3 py-2 text-sm text-gray-600"
-                  disabled={false}
-                >
-                  Cancel
-                </button>
-              </div>
-            </>
-          ) : (
-            <div className="flex justify-end gap-3">
-              <button
-                onClick={() => {
-                  if (disabledAll) return;
-                  onAction("accepted", item);
-                }}
-                disabled={disabledAll}
-                aria-disabled={disabledAll}
-                className={`px-4 py-2 rounded-md text-white ${
-                  disabledAll ? "bg-green-300 cursor-not-allowed" : "bg-green-600 hover:bg-green-700"
-                }`}
-              >
-                Accept
-              </button>
-
-              <button
-                onClick={() => {
-                  if (disabledAll) return;
-                  setNoteMode(true);
-                }}
-                disabled={disabledAll}
-                aria-disabled={disabledAll}
-                className={`px-4 py-2 rounded-md text-white ${
-                  disabledAll ? "bg-indigo-300 cursor-not-allowed" : "bg-indigo-600 hover:bg-indigo-700"
-                }`}
-              >
-                Request changes
-              </button>
-
-              <button
-                onClick={() => {
-                  if (disabledAll) return;
-                  onAction("rejected", item);
-                }}
-                disabled={disabledAll}
-                aria-disabled={disabledAll}
-                className={`px-4 py-2 rounded-md text-white ${
-                  disabledAll ? "bg-red-300 cursor-not-allowed" : "bg-red-600 hover:bg-red-700"
-                }`}
-              >
-                Reject
-              </button>
-            </div>
           )}
         </div>
       </div>
 
-      {/* overlay */}
-      <div className="flex-1" onClick={onClose} />
+      {/* OVERLAY */}
+      <div
+        className="flex-1 bg-black/30 backdrop-blur-sm"
+        onClick={onClose}
+      />
     </div>
   );
 }

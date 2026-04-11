@@ -18,6 +18,8 @@ export default function HospitalDashboard() {
   const [hospital, setHospital] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [appointments, setAppointments] = useState([]);
+  const [appointmentsLoading, setAppointmentsLoading] = useState(false);
 
   // Derive a "user" object used by header (prefer hospital data)
   const userFromHospital = hospital
@@ -27,71 +29,112 @@ export default function HospitalDashboard() {
   const userFallback = { name: "Center", email: "" };
 
   useEffect(() => {
-    console.log("HospitalDashboard page loaded");
-    const fetchHospital = async () => {
-      setLoading(true);
-      setError("");
-      try {
-        // prefer session token (non-persistent) then local token
-        const token = sessionStorage.getItem("token") || localStorage.getItem("token") || null;
-        console.log("Token found (session/local):", !!token);
-        if (token) {
-          setAuthToken(token);
-        } else {
-          setAuthToken(null);
-        }
-
-        if (!id) {
-          setError("Invalid URL: missing hospital id");
-          setLoading(false);
-          return;
-        }
-
-        console.log("Calling GET /api/hospital/" + id);
-        const res = await api.get(`/api/hospital/${id}`);
-        const hospitalDetails = res.data.hospitalFromHospitalModel ?? null;
-        console.log("hospitalDetails fetched:", res.data.hospitalFromHospitalModel);
-        setHospital(hospitalDetails);
-      } catch (err) {
-        console.error("Error fetching hospital:", err);
-        if (err.response) {
-          console.error("Response status:", err.response.status, "data:", err.response.data);
-          if (err.response.status === 400) {
-            // invalid id or bad request -> redirect to center details form to re-create/complete
-            navigate("/center/detailsForm");
-            return;
-          }
-          if (err.response.status === 404) {
-            // not found -> redirect to details form to create
-            navigate("/center/detailsForm");
-            return;
-          } else if (err.response.status === 401) {
-            setError("Unauthorized. Please login again.");
-            // clear stored token and auth header
-            sessionStorage.removeItem("token");
-            localStorage.removeItem("token");
-            setAuthToken(null);
-            navigate("/login", { replace: true });
-            return;
-          } else if (err.response.status === 403) {
-            setError("Forbidden. You don't have access to this hospital.");
-          } else {
-            setError(err.response.data?.message || "Unable to load hospital data. Please try again later.");
-          }
-        } else if (err.request) {
-          console.error("No response received. Request:", err.request);
-          setError("No response from server. Check network or CORS.");
-        } else {
-          console.error("Request setup error:", err.message);
-          setError(err.message || "Error fetching hospital data.");
-        }
-      } finally {
-        setLoading(false);
-      }
+    const init = async () => {
+      await fetchHospital();
+      await fetchAppointments(); // 👈 ADD THIS
     };
 
-    fetchHospital();
+    init();
   }, [id, navigate]);
+
+  useEffect(() => {
+  console.log("Appointments actually updated:", appointments);
+}, [appointments]);
+
+  const fetchHospital = async () => {
+    setLoading(true);
+    setError("");
+    try {
+      // prefer session token (non-persistent) then local token
+      const token = sessionStorage.getItem("token") || localStorage.getItem("token") || null;
+      console.log("Token found (session/local):", !!token);
+      if (token) {
+        setAuthToken(token);
+      } else {
+        setAuthToken(null);
+      }
+
+      if (!id) {
+        setError("Invalid URL: missing hospital id");
+        setLoading(false);
+        return;
+      }
+
+      console.log("Calling GET /api/hospital/" + id);
+      const res = await api.get(`/api/hospital/${id}`);
+      const hospitalDetails = res.data.hospitalFromHospitalModel ?? null;
+      console.log("hospitalDetails fetched:", res.data.hospitalFromHospitalModel);
+      setHospital(hospitalDetails);
+    } catch (err) {
+      console.error("Error fetching hospital:", err);
+      if (err.response) {
+        console.error("Response status:", err.response.status, "data:", err.response.data);
+        if (err.response.status === 400) {
+          // invalid id or bad request -> redirect to center details form to re-create/complete
+          navigate("/center/detailsForm");
+          return;
+        }
+        if (err.response.status === 404) {
+          // not found -> redirect to details form to create
+          navigate("/center/detailsForm");
+          return;
+        } else if (err.response.status === 401) {
+          setError("Unauthorized. Please login again.");
+          // clear stored token and auth header
+          sessionStorage.removeItem("token");
+          localStorage.removeItem("token");
+          setAuthToken(null);
+          navigate("/login", { replace: true });
+          return;
+        } else if (err.response.status === 403) {
+          setError("Forbidden. You don't have access to this hospital.");
+        } else {
+          setError(err.response.data?.message || "Unable to load hospital data. Please try again later.");
+        }
+      } else if (err.request) {
+        console.error("No response received. Request:", err.request);
+        setError("No response from server. Check network or CORS.");
+      } else {
+        console.error("Request setup error:", err.message);
+        setError(err.message || "Error fetching hospital data.");
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchAppointments = async () => {
+    if (!id) return;
+
+    setAppointmentsLoading(true);
+    try {
+      const token =
+        sessionStorage.getItem("token") ||
+        localStorage.getItem("token") ||
+        null;
+
+      if (token) {
+        setAuthToken(token);
+      }
+
+      console.log("Fetching appointments for hospital:", id);
+
+      const res = await api.get(`/api/hospital/appointments/${id}`);
+
+      // adjust based on your backend response structure
+      const appointmentsData =
+        res.data.appointments || res.data.data || [];
+
+      console.log("Appointments fetched:", appointmentsData);
+
+      setAppointments(appointmentsData);
+      console.log("Appointments state updated:", appointments);
+    } catch (error) {
+      console.error("Error fetching appointments:", error);
+    } finally {
+      setAppointmentsLoading(false);
+    }
+  };
 
   const handleLogout = async () => {
     try {
@@ -192,38 +235,9 @@ export default function HospitalDashboard() {
     { date: "Sun", booked: 5, completed: 4, cancelled: 0 },
   ];
 
-  const upcomingAppointments = [
-    {
-      id: 1,
-      appointmentId: "APT-001",
-      patientName: "John Doe",
-      date: "2026-03-01",
-      time: "09:00",
-      age: 45,
-      phone: "555-1234",
-      status: "pending",
-    },
-    {
-      id: 2,
-      appointmentId: "APT-002",
-      patientName: "Jane Smith",
-      date: "2026-03-01",
-      time: "10:30",
-      age: 38,
-      phone: "555-5678",
-      status: "approved",
-    },
-    {
-      id: 3,
-      appointmentId: "APT-003",
-      patientName: "Robert Wilson",
-      date: "2026-03-02",
-      time: "14:00",
-      age: 52,
-      phone: "555-9012",
-      status: "pending",
-    },
-  ];
+  const upcomingAppointments = appointments.filter(
+    (appt) => appt.status === "pending" || appt.status === "approved" || appt.status === "active"
+  );
 
   const recentActivities = [
     {
@@ -297,7 +311,7 @@ export default function HospitalDashboard() {
       <div className="w-full px-4 sm:px-6 lg:px-8 py-8">
         <div className="max-w-7xl mx-auto">
           {/* Quick Stats */}
-          <QuickStatsComponent stats={stats} />
+          <QuickStatsComponent appointments={appointments} />
 
           {/* Info Cards */}
           <div className="space-y-6">
@@ -308,7 +322,11 @@ export default function HospitalDashboard() {
           </div>
 
           <div className="lg:col-span-2">
-            <UpcomingAppointmentsCard appointments={upcomingAppointments} onApprove={handleApproveAppointment} onCancel={handleCancelAppointment} />
+            <UpcomingAppointmentsCard
+              appointments={upcomingAppointments}
+              onApprove={handleApproveAppointment}
+              onCancel={handleCancelAppointment}
+            />
           </div>
         </div>
       </div>

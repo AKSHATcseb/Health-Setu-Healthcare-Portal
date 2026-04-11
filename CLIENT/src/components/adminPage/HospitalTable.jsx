@@ -1,4 +1,5 @@
 import React from "react";
+import { ArrowUpRight } from "lucide-react";
 
 /**
  * Props:
@@ -37,7 +38,10 @@ export default function HospitalTable({
                   className={`px-4 py-3 cursor-pointer ${actionsDisabled ? "opacity-90" : ""}`}
                   onClick={() => onRowClick(item)}
                 >
-                  <div className="text-sm font-medium text-gray-900">{item.hospitalName}</div>
+                  <div className="text-sm font-medium text-gray-900">
+                    {item.hospitalName}
+                    <ArrowUpRight size={16} className="inline-block ml-1 text-gray-400" />
+                  </div>
                   <div className="text-xs text-gray-500">{item.phone}</div>
                 </td>
                 <td className="px-4 py-3 text-sm text-gray-700">{item.email}</td>

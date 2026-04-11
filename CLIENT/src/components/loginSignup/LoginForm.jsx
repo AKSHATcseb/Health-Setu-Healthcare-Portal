@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Mail, Lock, Eye, EyeOff, ArrowRight } from "lucide-react";
+import { Mail, Lock, Eye, EyeOff, ArrowRight, Heart } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import api, { setAuthToken } from "../../services/api";
 import { HeartPulseBadge, ShieldLock } from "../CustomIcons";
@@ -111,37 +111,19 @@ export default function Login() {
     >
       {/* Header */}
       <header className="w-full px-10 py-10 bg-slate-200">
-        <div className=" sm:px-6 lg:px-12 flex items-center justify-between bg-slate-200">
+        <div className=" sm:px-6 lg:px-12 flex items-center justify-center bg-slate-200">
           <div
-            className="flex items-center gap-3 cursor-pointer"
             onClick={() => navigate("/")}
-            role="button"
-            tabIndex={0}
-            aria-label="HealthSetu home"
+            className="flex items-center gap-2 cursor-pointer"
           >
-            <div
-              className="w-11 h-11 rounded-lg flex items-center justify-center shadow-sm"
-              style={{ background: "linear-gradient(180deg,#0b1220,#111827)" }}
-            >
-              <HeartPulseBadge className="w-6 h-6 text-white" />
+            <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-teal-500 rounded-full flex items-center justify-center">
+              <Heart size={20} className="text-white fill-white" />
             </div>
-            <div className="hidden sm:block">
-              <h1 className="font-extrabold text-slate-900 text-lg">HealthSetu</h1>
-              <p className="text-xs text-slate-500 -mt-0.5">Care for Patients & Families</p>
-            </div>
+            <h1 className="font-bold text-lg sm:text-2xl text-blue-700">
+              HealthSetu
+            </h1>
           </div>
 
-          <div className="hidden sm:flex items-center gap-4">
-            <button onClick={() => navigate("/")} className="text-sm text-slate-700 hover:text-slate-900 transition">
-              Back to Home
-            </button>
-            <button
-              onClick={() => navigate("/register")}
-              className="px-3 py-2 rounded-md bg-[#0b1220] text-white text-sm font-semibold shadow-sm hover:brightness-105 transition"
-            >
-              Create Account
-            </button>
-          </div>
 
           {/* Mobile action: compact */}
           <div className="sm:hidden">
@@ -154,20 +136,18 @@ export default function Login() {
 
       {/* Main: center the card */}
       <main className="flex-1 flex items-center justify-center px-4 sm:px-6 lg:px-12 py-12 bg-slate-200">
-        <div className="w-full ">
-          <div className="mx-auto"
-               style={{ maxWidth: 720 /* ensures card never too wide on large screens */ }}>
+        <div className="w-full max-w-lg mx-auto">
             <div
-              className="mx-auto rounded-2xl p-6 sm:p-8 md:p-10 shadow-2xl"
-              style={{ background: "linear-gradient(180deg,#0b1220 0%, #111827 100%)", color: "#f8fafc" }}
-              aria-labelledby="login-heading"
-            >
+            className="rounded-2xl p-6 sm:p-8 md:p-10 shadow-2xl"
+            style={{ background: "linear-gradient(180deg,#0b1220 0%, #111827 100%)", color: "#f8fafc" }}
+            aria-labelledby="register-heading"
+          >
               <div className="text-center mb-6">
                 <div
-                  className="inline-flex items-center justify-center w-12 h-12 rounded-lg mx-auto mb-3"
+                  className="inline-flex items-center justify-center w-14 h-14 rounded-lg mx-auto mb-3"
                   style={{ background: "linear-gradient(180deg,#111827,#0b1220)" }}
                 >
-                  <HeartPulseBadge className="w-6 h-6 text-white" />
+                  <ShieldLock className="w-6 h-6 text-white" />
                 </div>
                 <h3 id="login-heading" className="text-2xl font-extrabold">Sign in</h3>
                 <p className="text-sm text-slate-300 mt-2">Enter your credentials to access your account</p>
@@ -239,8 +219,8 @@ export default function Login() {
                 </div>
 
                 {/* Remember + forgot */}
-                <div className="flex items-center justify-between">
-                  <label className="flex items-center gap-2 cursor-pointer">
+                <div className="flex items-center justify-end">
+                  {/* <label className="flex items-center gap-2 cursor-pointer">
                     <input
                       type="checkbox"
                       checked={rememberMe}
@@ -248,7 +228,7 @@ export default function Login() {
                       className="w-4 h-4 rounded border-slate-500 bg-white/2 text-sky-600 focus:ring-sky-500"
                     />
                     <span className="text-sm text-slate-300">Remember me</span>
-                  </label>
+                  </label> */}
 
                   <button
                     type="button"
@@ -295,7 +275,7 @@ export default function Login() {
                 By signing in you agree to our <button className="text-slate-300 underline">Terms</button> and <button className="text-slate-300 underline">Privacy</button>.
               </p>
             </div>
-          </div>
+          
         </div>
       </main>
 

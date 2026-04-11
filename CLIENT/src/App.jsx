@@ -35,7 +35,7 @@ function App() {
         <Route path='/patient/dashboard/:id' element={<PatientDashboard />} />
         <Route path='/patient/:id/bookappointment' element={<BookingPage />} />
         <Route path="/patient/:patientId/confirmappointment/:id" element={<AppointmentConfirmation />} />
-        <Route path='/patient/myappointments' element={<MyAppointments />} />
+        <Route path='/patient/appointments/:patientId' element={<MyAppointments />} />
         <Route path='/patient/profile' element={<PatientProfile />} />
         <Route path="/center/detailsForm" element={<CenterDetailsForm />} />
         <Route path="/center/registration-success" element={<HospitalRegistrationSuccess />} />
@@ -44,6 +44,7 @@ function App() {
         <Route path='/center/update' element={<CenterUpdateDetails />} />
         <Route path='/center/:cid' element={<CompleteCenterDetail />} />
         <Route path='/admin/dashboard/:id' element={<AdminPage />} />
+        
       </Routes>
     </>
   )
