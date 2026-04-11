@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Menu, X, Heart } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
+import logo from "../assets/images/logo.png";
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
@@ -36,16 +37,21 @@ export default function Navbar() {
 
           {/* Logo */}
           <div
-            onClick={() => navigate("/")}
-            className="flex items-center gap-2 cursor-pointer"
-          >
-            <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-teal-500 rounded-full flex items-center justify-center">
-              <Heart size={20} className="text-white fill-white" />
-            </div>
-            <h1 className="font-bold text-lg sm:text-2xl text-blue-700">
-              HealthSetu
-            </h1>
-          </div>
+      onClick={() => navigate("/")}
+      className="flex items-center gap-2 cursor-pointer"
+    >
+      <div className="w-10 h-10 rounded-full overflow-hidden bg-white">
+        <img
+          src={logo}
+          alt="HealthSetu"
+          className="w-full h-full object-contain"
+        />
+      </div>
+
+      <h1 className="font-bold text-lg sm:text-2xl text-blue-700">
+        HealthSetu
+      </h1>
+    </div>
 
           {/* Desktop Nav */}
           <div className="hidden lg:flex items-center gap-12">
