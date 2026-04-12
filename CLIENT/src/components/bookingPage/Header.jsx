@@ -50,7 +50,7 @@ export default function Header({
         </svg>
       </div>
 
-      <div className="max-w-7xl mx-auto relative z-10 px-4 sm:px-6 lg:px-12 py-4 sm:py-6 md:py-8 lg:py-10">
+      <div className="max-w-7xl mx-18 relative z-10 px-4 sm:px-6 lg:px-12 py-4 sm:py-6 md:py-8 lg:py-10">
         {/* Mobile compact bar: back icon (left) | title centered | primary CTA (right) */}
         <div className="flex items-center justify-between md:hidden">
           <button

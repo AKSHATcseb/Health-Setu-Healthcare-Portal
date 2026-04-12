@@ -101,7 +101,7 @@ export default function BookAppointment() {
   ];
 
   return (
-    <div className="w-full min-h-screen bg-gradient-to-b from-blue-50 via-white to-teal-50 flex flex-col">
+    <div className="w-full min-h-screen bg-linear-to-b from-blue-50 via-white to-teal-50 flex flex-col">
       <div className="flex-1">
         <Header />
 
@@ -124,7 +124,7 @@ export default function BookAppointment() {
         />
 
         {/* MAIN CONTENT */}
-        <section className="w-full px-4 sm:px-6 lg:px-12 py-12 bg-slate-200">
+        <section className="w-full px-4 sm:px-6 lg:px-12 pb-12 bg-slate-200">
           <div className="max-w-7xl mx-auto">
 
             <SortOptions sortBy={sortBy} setSortBy={setSortBy} />
