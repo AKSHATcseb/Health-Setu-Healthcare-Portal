@@ -43,7 +43,7 @@ export default function Navbar() {
 
             <span className="
             text-2xl font-semibold
-            bg-gradient-to-r from-blue-600 to-emerald-500 
+            bg-gradient-to-l from-blue-800 to-emerald-700 
             bg-clip-text text-transparent">
               HealthSetu
             </span>
