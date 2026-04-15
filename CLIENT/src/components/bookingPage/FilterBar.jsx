@@ -160,7 +160,7 @@ export default function FilterBar({
               <input
                 type="range"
                 min="0"
-                max="2000"
+                max="10000"
                 value={distanceFilter?.max ?? 0}
                 onChange={(e) => setDistanceFilter?.({ ...distanceFilter, max: parseInt(e.target.value, 10) })}
                 disabled={!filtersEnabled}
@@ -181,7 +181,7 @@ export default function FilterBar({
               <input
                 type="range"
                 min="0"
-                max="5000"
+                max="150000"
                 value={priceFilter?.max ?? 0}
                 onChange={(e) => setPriceFilter?.({ ...priceFilter, max: parseInt(e.target.value, 10) })}
                 disabled={!filtersEnabled}

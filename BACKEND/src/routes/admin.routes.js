@@ -206,7 +206,7 @@ router.patch(
           try {
             const createdHospital = await Hospital.create(hospitalPayload);
 
-            console.log("Hospital created:", createdHospital);
+            // console.log("Hospital created:", createdHospital);
 
 
             /* ================= CREATE MACHINES ================= */

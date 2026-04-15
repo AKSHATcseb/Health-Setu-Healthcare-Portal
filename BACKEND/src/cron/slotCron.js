@@ -1,5 +1,5 @@
 const cron = require("node-cron");
-const Machine = require("../models/Machine");
+const mongoose = require("mongoose");
 
 /* helper functions */
 const getToday = () => new Date().toISOString().split("T")[0];
@@ -20,9 +20,19 @@ const generateSlotsForDate = (dateStr) => {
   }));
 };
 
-/* CRON JOB */
+/* CRON JOB - runs daily at midnight server time */
 cron.schedule("0 0 * * *", async () => {
   console.log("Running daily slot update...");
+
+  // Resolve models lazily so requiring this file doesn't force model registration order
+  let Machine;
+  try {
+    Machine = mongoose.model("Machine");
+  } catch (err) {
+    // Machine model not registered yet (or Hospital missing in Machine file) — skip run
+    console.warn("[slotCron] Machine model not registered yet. Ensure models are required after DB connect.");
+    return;
+  }
 
   try {
     const today = getToday();
@@ -31,15 +41,11 @@ cron.schedule("0 0 * * *", async () => {
     const machines = await Machine.find();
 
     for (const machine of machines) {
-      /* STEP 2.1 → Remove past dates */
-      machine.slots = machine.slots.filter(
-        (slot) => slot.date >= today
-      );
+      /* Remove past dates */
+      machine.slots = (machine.slots || []).filter((slot) => slot.date >= today);
 
-      /* STEP 2.2 → Add new date (today + 7) */
-      const exists = machine.slots.some(
-        (slot) => slot.date === newDate
-      );
+      /* Add new date (today + 7) if missing */
+      const exists = machine.slots.some((slot) => slot.date === newDate);
 
       if (!exists) {
         const newSlots = generateSlotsForDate(newDate);
@@ -51,6 +57,6 @@ cron.schedule("0 0 * * *", async () => {
 
     console.log("Slots updated successfully");
   } catch (err) {
-    console.error(err);
+    console.error("[slotCron] Error updating slots:", err);
   }
 });

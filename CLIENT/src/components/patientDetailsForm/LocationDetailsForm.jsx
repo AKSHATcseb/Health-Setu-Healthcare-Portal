@@ -10,6 +10,7 @@ import { MapPin, Loader, AlertCircle } from "lucide-react";
 export default function LocationDetailsForm({ formData, setFormData, errors, setErrors }) {
   const [locationLoading, setLocationLoading] = useState(false);
   const [locationError, setLocationError] = useState("");
+  const isLocationSelected = Boolean(formData.latitude && formData.longitude);
 
   const validateAddress = (address) => {
     return address && address.trim().length >= 10;

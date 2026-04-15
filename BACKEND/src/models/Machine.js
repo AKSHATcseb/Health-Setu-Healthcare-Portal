@@ -29,8 +29,17 @@ const slotSchema = new mongoose.Schema(
 
 /* ---------------- HELPER FUNCTIONS ---------------- */
 
+function formatLocalDate(d) {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
+
+
 // Generate slots for next 7 days
 async function generateInitialSlots(hospitalId) {
+
   const Hospital = mongoose.model("Hospital");
 
   const hospital = await Hospital.findById(hospitalId);
@@ -50,7 +59,7 @@ async function generateInitialSlots(hospitalId) {
     const date = new Date(today);
     date.setDate(today.getDate() + i);
 
-    const formattedDate = date.toISOString().split("T")[0];
+    const formattedDate = formatLocalDate(date);
 
     timings.forEach((time) => {
       slots.push({
