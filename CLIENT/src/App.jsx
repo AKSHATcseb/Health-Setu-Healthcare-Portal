@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import './App.css'
 import { Routes, Route } from 'react-router-dom'
+import ChatWidget from './components/chatbot/ChatWidget'
 
 
 import Home from './pages/Public/LandingPage'
@@ -19,6 +20,7 @@ import EditProfile from './pages/Patient/EditProfile'
 import CenterUpdateDetails from './pages/Center/CenterUpdateDetails'
 import CompleteCenterDetail from './pages/Patient/CompleteCenterDetail'
 import AdminPage from './pages/Admin/AdminPage'
+import ReportAnalysis from './pages/Patient/ReportAnalysis'
 
 // import { Toaster } from 'react-hot-toast'
 
@@ -44,8 +46,12 @@ function App() {
         <Route path='/center/update' element={<CenterUpdateDetails />} />
         <Route path='/center/:cid' element={<CompleteCenterDetail />} />
         <Route path='/admin/dashboard/:id' element={<AdminPage />} />
+        <Route path='/patient/:id/reports' element={<ReportAnalysis />} />
         
       </Routes>
+
+      {/* Global floating chatbot */}
+      <ChatWidget />
     </>
   )
 }

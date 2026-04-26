@@ -1,5 +1,7 @@
 const express = require("express");
 const cors = require("cors");
+const cron = require("./cron/slotCron");
+
 const app = express();
 
 app.use(express.json());
@@ -20,6 +22,8 @@ app.use("/api/hospital", require("./routes/hospital.routes"));
 app.use("/api/admin", require("./routes/admin.routes"));
 app.use("/api/payment", require("./routes/payment.routes"));
 app.use("/api/appointment", require("./routes/newAppointment.routes"));
+app.use("/api/chat", require("./chatbot/routes/chat.routes"));
+app.use("/api/reports", require("./routes/report.routes"));
 // app.use("/api/users", require("./routes/user.routes"));
 // app.use("/api/machines", require("./routes/machine.routes"));
 
