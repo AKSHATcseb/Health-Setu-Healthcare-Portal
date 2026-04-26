@@ -124,9 +124,17 @@ export default function CompleteProfile() {
   };
 
   const isStep3Valid = () => {
-    const ok = formData.address && !errors.address;
-    return Boolean(ok);
-  };
+  const hasLocation =
+    formData.latitude !== null &&
+    formData.longitude !== null;
+
+  const ok =
+    formData.address &&
+    !errors.address &&
+    hasLocation;
+
+  return Boolean(ok);
+};
 
   const isCurrentStepValid = () => {
     if (currentStep === 1) return isStep1Valid();

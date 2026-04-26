@@ -19,6 +19,7 @@ function generateSlotsFromTimings(timings) {
     const date = new Date(today);
     date.setDate(today.getDate() + i);
 
+    // const formattedDate = date.formatLocalDate(new Date());
     const formattedDate = date.toISOString().split("T")[0];
 
     timings.forEach((time) => {
@@ -206,7 +207,7 @@ router.patch(
           try {
             const createdHospital = await Hospital.create(hospitalPayload);
 
-            console.log("Hospital created:", createdHospital);
+            // console.log("Hospital created:", createdHospital);
 
 
             /* ================= CREATE MACHINES ================= */

@@ -26,8 +26,8 @@ export default function BookAppointment() {
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedTime, setSelectedTime] = useState("");
 
-  const [distanceFilter, setDistanceFilter] = useState({ min: 0, max: 50 });
-  const [priceFilter, setPriceFilter] = useState({ min: 0, max: 5000 });
+  const [distanceFilter, setDistanceFilter] = useState({ min: 0, max: 10000 });
+  const [priceFilter, setPriceFilter] = useState({ min: 0, max: 150000 });
 
   const [ratingFilter, setRatingFilter] = useState(0); // ignored for now
   const [sortBy, setSortBy] = useState("closest");
@@ -52,20 +52,20 @@ export default function BookAppointment() {
       try {
         setLoading(true);
 
+        console.log("📤 Request params:", {
+          applyFilters: filtersEnabled,
+          date: selectedDate,
+          lat: user.location.lat,
+          lng: user.location.lng,
+          maxDistance: distanceFilter.max,
+          minPrice: priceFilter.min,
+          maxPrice: priceFilter.max,
+        });
+
         console.log("📤 Sending date to backend:", selectedDate);
         const res = await api.get(
           "http://localhost:8080/api/patient/available-hospitals",
-          {
-            params: {
-              date: selectedDate,
-              lat: user.location.lat,
-              lng: user.location.lng,
-              maxDistance: distanceFilter.max,
-              minPrice: priceFilter.min,
-              maxPrice: priceFilter.max,
-              applyFilters: filtersEnabled
-            },
-          }
+          { params: { applyFilters: filtersEnabled, date: selectedDate, lat: user.location.lat, lng: user.location.lng, maxDistance: distanceFilter.max, minPrice: priceFilter.min, maxPrice: priceFilter.max } }
         );
         setHospitals(res.data.data);
         console.log("Fetched hospitals:", res.data.data);
@@ -101,7 +101,7 @@ export default function BookAppointment() {
   ];
 
   return (
-    <div className="w-full min-h-screen bg-gradient-to-b from-blue-50 via-white to-teal-50 flex flex-col">
+    <div className="w-full min-h-screen bg-linear-to-b from-blue-50 via-white to-teal-50 flex flex-col">
       <div className="flex-1">
         <Header />
 
@@ -124,7 +124,7 @@ export default function BookAppointment() {
         />
 
         {/* MAIN CONTENT */}
-        <section className="w-full px-4 sm:px-6 lg:px-12 py-12 bg-slate-200">
+        <section className="w-full px-4 sm:px-6 lg:px-12 pb-12 bg-slate-200">
           <div className="max-w-7xl mx-auto">
 
             <SortOptions sortBy={sortBy} setSortBy={setSortBy} />

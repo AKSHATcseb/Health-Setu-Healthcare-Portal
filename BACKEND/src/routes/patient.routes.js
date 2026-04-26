@@ -2,7 +2,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const router = express.Router();
 // const { requireAuth  = require("../middleware/requireAuth");
-const requireAuth  = require("../middleware/auth.middleware");
+const requireAuth = require("../middleware/auth.middleware");
 
 const Patient = require("../models/PatientDetails");
 const Machine = require("../models/Machine");
@@ -17,6 +17,7 @@ function getAuthUserId(req) {
   console.log("getAuthUserId:", req.user, "->", userId);
 }
 
+// Haversine formula to calculate distance between two lat/lng points in km
 function calculateDistance(lat1, lon1, lat2, lon2) {
   const R = 6371; // km
 
@@ -26,8 +27,8 @@ function calculateDistance(lat1, lon1, lat2, lon2) {
   const a =
     Math.sin(dLat / 2) ** 2 +
     Math.cos(lat1 * (Math.PI / 180)) *
-      Math.cos(lat2 * (Math.PI / 180)) *
-      Math.sin(dLon / 2) ** 2;
+    Math.cos(lat2 * (Math.PI / 180)) *
+    Math.sin(dLon / 2) ** 2;
 
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
@@ -279,59 +280,233 @@ function calculateDistance(lat1, lon1, lat2, lon2) {
 }
 
 /* ---------------- ROUTE ---------------- */
-router.get("/available-hospitals", async (req, res) => {
+// router.get("/available-hospitals", async (req, res) => {
+//   try {
+//     const {
+//       applyFilters,
+//       date,
+//       lat,
+//       lng,
+//       maxDistance = 50,
+//       minPrice = 0,
+//       maxPrice = 50000,
+//     } = req.query;
+
+//     if (!date) {
+//       return res.status(400).json({ error: "Date is required" });
+//     }
+
+//     const cleanDate = date.split("T")[0];
+//     console.log("📅 Searching for date:", cleanDate);
+
+//     /* 🔥 DISTANCE FUNCTION */
+//     function calculateDistance(lat1, lon1, lat2, lon2) {
+//       const R = 6371; // km
+
+//       const dLat = (lat2 - lat1) * (Math.PI / 180);
+//       const dLon = (lon2 - lon1) * (Math.PI / 180);
+
+//       const a =
+//         Math.sin(dLat / 2) ** 2 +
+//         Math.cos(lat1 * (Math.PI / 180)) *
+//           Math.cos(lat2 * (Math.PI / 180)) *
+//           Math.sin(dLon / 2) ** 2;
+
+//       const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+//       return R * c;
+//     }
+
+//     /* 🔧 FETCH MACHINES */
+//     const machines = await Machine.find().populate("hospitalId");
+//     console.log("🔧 Total machines:", machines.length);
+
+//     /* ✅ FILTER MACHINES WITH AVAILABLE SLOTS */
+//     const validMachines = machines.filter((machine) =>
+//       machine.slots.some(
+//         (slot) =>
+//           slot.date === cleanDate &&
+//           slot.availability_status === "available"
+//       )
+//     );
+
+//     console.log("✅ Machines with available slots:", validMachines.length);
+
+//     /* 🏥 BUILD HOSPITAL MAP */
+//     const hospitalMap = new Map();
+
+//     validMachines.forEach((validMachine) => {
+//       const hospital = validMachine.hospitalId;
+//       if (!hospital) return;
+
+//       const hospitalId = hospital._id.toString();
+
+//       if (!hospitalMap.has(hospitalId)) {
+//         hospitalMap.set(hospitalId, {
+//           ...hospital.toObject(),
+//           availableSlots: new Set(),
+//         });
+//       }
+
+//       const hospitalEntry = hospitalMap.get(hospitalId);
+
+//       validMachine.slots.forEach((slot) => {
+//         if (
+//           slot.date === cleanDate &&
+//           slot.availability_status === "available"
+//         ) {
+//           const slotLabel = slot.endTime
+//             ? `${slot.startTime} - ${slot.endTime}`
+//             : `${slot.startTime}`;
+
+//           hospitalEntry.availableSlots.add(slotLabel);
+//         }
+//       });
+//     });
+
+//     let hospitals = Array.from(hospitalMap.values());
+
+//     console.log("🏥 Hospitals before filters:", hospitals.length);
+
+//     /* 🔥 ADD DISTANCE (ALWAYS if lat/lng present) */
+//     if (lat && lng) {
+//       const userLat = parseFloat(lat);
+//       const userLng = parseFloat(lng);
+
+//       hospitals = hospitals.map((h) => {
+//         let distance = null;
+
+//         // ✅ GeoJSON case
+//         if (h.location?.coordinates) {
+//           const [lng2, lat2] = h.location.coordinates;
+
+//           distance = calculateDistance(userLat, userLng, lat2, lng2);
+//         }
+
+//         // ✅ Fallback: lat/lng fields
+//         else if (h.latitude && h.longitude) {
+//           distance = calculateDistance(
+//             userLat,
+//             userLng,
+//             h.latitude,
+//             h.longitude
+//           );
+//         }
+
+//         return {
+//           ...h,
+//           distance: distance ? Number(distance.toFixed(2)) : null,
+//         };
+//       });
+//     }
+
+//     /* 💰 PRICE FILTER */
+//     if (applyFilters === "true") {
+//       hospitals = hospitals.filter((h) => {
+//         const price =
+//           h.priceFor4Hrs ?? h.priceFor6Hrs ?? h.priceForPD ?? 0;
+
+//         return price >= minPrice && price <= maxPrice;
+//       });
+//     }
+
+//     console.log("💰 After price filter:", hospitals.length);
+
+//     /* 📍 DISTANCE FILTER */
+//     if (applyFilters === "true" && lat && lng) {
+//       hospitals = hospitals.filter(
+//         (h) => h.distance !== null && h.distance <= maxDistance
+//       );
+//     }
+
+//     console.log("📍 After distance filter:", hospitals.length);
+
+//     /* 🔄 FINAL FORMAT */
+//     const result = hospitals.map((h) => ({
+//       ...h,
+//       availableSlots: Array.from(h.availableSlots),
+//     }));
+
+//     return res.json({
+//       success: true,
+//       count: result.length,
+//       data: result,
+//     });
+//   } catch (err) {
+//     console.error("❌ ERROR:", err);
+//     return res.status(500).json({ error: "Server error" });
+//   }
+// });
+
+
+
+// GET /api/patient/available-hospitals
+
+
+
+function formatLocalDate(d) {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
+
+
+
+const getAvailableHospitals = async (req, res) => {
   try {
+    console.log("backend ");
+    // Log the raw query for debugging
+    console.log("GET /api/patient/available-hospitals query:", req.query);
+
     const {
       applyFilters,
-      date,
+      date: rawDate,
       lat,
       lng,
-      maxDistance = 50,
+      maxDistance = 10000,
       minPrice = 0,
-      maxPrice = 50000,
+      maxPrice = 150000,
     } = req.query;
 
-    if (!date) {
-      return res.status(400).json({ error: "Date is required" });
+    console.log("raw date:", rawDate, "lat:", lat, "lng:", lng, "maxDistance:", maxDistance, "minPrice:", minPrice, "maxPrice:", maxPrice);
+    // Normalize applyFilters to boolean
+    const applyFiltersBool = String(applyFilters) === "true";
+
+    if (!rawDate) {
+      return res.status(400).json({ error: "Date is required (query param 'date')" });
     }
 
-    const cleanDate = date.split("T")[0];
+    const dateStr = String(rawDate).trim();
+
+    // Accept either YYYY-MM-DD or ISO string — produce cleanDate as YYYY-MM-DD
+    let cleanDate;
+    if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+      cleanDate = dateStr;
+    } else {
+      const parsed = new Date(dateStr);
+      if (Number.isNaN(parsed.getTime())) {
+        return res.status(400).json({ error: "Invalid date format. Send YYYY-MM-DD or an ISO date string." });
+      }
+      cleanDate = formatLocalDate(parsed);
+    }
     console.log("📅 Searching for date:", cleanDate);
 
-    /* 🔥 DISTANCE FUNCTION */
-    function calculateDistance(lat1, lon1, lat2, lon2) {
-      const R = 6371; // km
-
-      const dLat = (lat2 - lat1) * (Math.PI / 180);
-      const dLon = (lon2 - lon1) * (Math.PI / 180);
-
-      const a =
-        Math.sin(dLat / 2) ** 2 +
-        Math.cos(lat1 * (Math.PI / 180)) *
-          Math.cos(lat2 * (Math.PI / 180)) *
-          Math.sin(dLon / 2) ** 2;
-
-      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-
-      return R * c;
-    }
-
-    /* 🔧 FETCH MACHINES */
+    /* Fetch machines and populate hospital */
     const machines = await Machine.find().populate("hospitalId");
     console.log("🔧 Total machines:", machines.length);
 
-    /* ✅ FILTER MACHINES WITH AVAILABLE SLOTS */
+    /* Filter machines that have an available slot on cleanDate */
     const validMachines = machines.filter((machine) =>
       machine.slots.some(
         (slot) =>
-          slot.date === cleanDate &&
-          slot.availability_status === "available"
+          slot.date === cleanDate && slot.availability_status === "available"
       )
     );
 
     console.log("✅ Machines with available slots:", validMachines.length);
 
-    /* 🏥 BUILD HOSPITAL MAP */
+    /* Build a map of hospitals with aggregated available slots */
     const hospitalMap = new Map();
 
     validMachines.forEach((validMachine) => {
@@ -364,10 +539,9 @@ router.get("/available-hospitals", async (req, res) => {
     });
 
     let hospitals = Array.from(hospitalMap.values());
-
     console.log("🏥 Hospitals before filters:", hospitals.length);
 
-    /* 🔥 ADD DISTANCE (ALWAYS if lat/lng present) */
+    /* Add distance if lat/lng provided - uses top-level calculateDistance helper */
     if (lat && lng) {
       const userLat = parseFloat(lat);
       const userLng = parseFloat(lng);
@@ -375,21 +549,11 @@ router.get("/available-hospitals", async (req, res) => {
       hospitals = hospitals.map((h) => {
         let distance = null;
 
-        // ✅ GeoJSON case
         if (h.location?.coordinates) {
           const [lng2, lat2] = h.location.coordinates;
-
           distance = calculateDistance(userLat, userLng, lat2, lng2);
-        }
-
-        // ✅ Fallback: lat/lng fields
-        else if (h.latitude && h.longitude) {
-          distance = calculateDistance(
-            userLat,
-            userLng,
-            h.latitude,
-            h.longitude
-          );
+        } else if (h.latitude && h.longitude) {
+          distance = calculateDistance(userLat, userLng, h.latitude, h.longitude);
         }
 
         return {
@@ -399,19 +563,17 @@ router.get("/available-hospitals", async (req, res) => {
       });
     }
 
-    /* 💰 PRICE FILTER */
+    /* Price filter (only when applyFilters === "true") */
     if (applyFilters === "true") {
       hospitals = hospitals.filter((h) => {
-        const price =
-          h.priceFor4Hrs ?? h.priceFor6Hrs ?? h.priceForPD ?? 0;
-
+        const price = h.priceFor4Hrs ?? h.priceFor6Hrs ?? h.priceForPD ?? 0;
         return price >= minPrice && price <= maxPrice;
       });
     }
 
     console.log("💰 After price filter:", hospitals.length);
 
-    /* 📍 DISTANCE FILTER */
+    /* Distance filter (only when applyFilters === "true" and lat/lng present) */
     if (applyFilters === "true" && lat && lng) {
       hospitals = hospitals.filter(
         (h) => h.distance !== null && h.distance <= maxDistance
@@ -420,7 +582,7 @@ router.get("/available-hospitals", async (req, res) => {
 
     console.log("📍 After distance filter:", hospitals.length);
 
-    /* 🔄 FINAL FORMAT */
+    /* Final format: convert availableSlots sets to arrays */
     const result = hospitals.map((h) => ({
       ...h,
       availableSlots: Array.from(h.availableSlots),
@@ -435,7 +597,9 @@ router.get("/available-hospitals", async (req, res) => {
     console.error("❌ ERROR:", err);
     return res.status(500).json({ error: "Server error" });
   }
-});
+};
+
+/* Register route (replace the inline handler with the named one) */
 
 
 
@@ -443,11 +607,12 @@ router.get("/available-hospitals", async (req, res) => {
 /** Routes
  * Note: static routes (details, profile) must be defined before the param route "/:id"
  * so they are not swallowed by the parameter route.
- */
+*/
 
 router.get("/details", requireAuth, getPatientDetails);
 router.post("/details", requireAuth, addPatientDetails);
 router.get("/profile", requireAuth, getPatientDetailsForDashboard);
+router.get("/available-hospitals", requireAuth, getAvailableHospitals);
 
 // 🚨 ALWAYS LAST
 router.get("/:id", requireAuth, getPatientById);

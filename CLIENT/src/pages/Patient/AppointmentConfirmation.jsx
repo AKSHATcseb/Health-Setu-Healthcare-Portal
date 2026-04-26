@@ -32,6 +32,8 @@ export default function AppointmentConfirmation() {
       try {
         setLoading(true);
 
+        console.log("Fetching data for patientId:", patientId, "and hospitalId:", id);
+
         const [p1, h1] = await Promise.all([
           api.get(`/api/patient/${patientId}`),
           api.get(`/api/hospital/fetch/${id}`)

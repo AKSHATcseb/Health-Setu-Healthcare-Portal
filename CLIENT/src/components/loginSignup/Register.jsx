@@ -132,7 +132,7 @@ export default function Register() {
         <div className="w-full max-w-lg mx-auto">
           <div
             className="rounded-2xl p-6 sm:p-8 md:p-10 shadow-2xl"
-            style={{ background: "linear-gradient(180deg, #334155 0%, #1e293b 100%)", color: "#f8fafc" }}
+            style={{ background: "linear-gradient(180deg,#0b1220 0%, #111827 100%)", color: "#f8fafc" }}
             aria-labelledby="register-heading"
           >
             <div className="text-center mb-6">

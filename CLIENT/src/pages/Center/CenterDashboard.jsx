@@ -38,8 +38,8 @@ export default function HospitalDashboard() {
   }, [id, navigate]);
 
   useEffect(() => {
-  console.log("Appointments actually updated:", appointments);
-}, [appointments]);
+    console.log("Appointments actually updated:", appointments);
+  }, [appointments]);
 
   const fetchHospital = async () => {
     setLoading(true);
@@ -162,10 +162,29 @@ export default function HospitalDashboard() {
     alert("Appointment approved!");
   };
 
-  const handleCancelAppointment = (appointmentId) => {
-    console.log("Cancelled appointment:", appointmentId);
-    alert("Appointment cancelled!");
-  };
+  const handleCancelAppointment = async (appointmentId) => {
+  try {
+    console.log("Cancelling appointment:", appointmentId);
+
+    await api.patch(`/api/appointments/${appointmentId}/status`, {
+      status: "cancelled",
+    });
+
+    // ✅ Update UI instantly (important)
+    setAppointments((prev) =>
+      prev.map((appt) =>
+        appt._id === appointmentId
+          ? { ...appt, status: "cancelled" }
+          : appt
+      )
+    );
+
+    alert("Appointment cancelled successfully");
+  } catch (error) {
+    console.error("Cancel failed:", error);
+    alert("Failed to cancel appointment");
+  }
+};
 
   if (loading) {
     return (

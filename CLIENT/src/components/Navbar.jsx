@@ -26,7 +26,7 @@ export default function Navbar() {
     bg-slate-200 
     border-b border-white/20
     shadow-sm">
-      
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12">
         <div className="flex items-center justify-between h-20">
 
@@ -69,6 +69,7 @@ export default function Navbar() {
             <button
               onClick={() => navigate("/login")}
               className="
+              cursor-pointer
               px-6 py-2.5
               rounded-full
               bg-gradient-to-r from-slate-600 via-slate-800 to-slate-900
@@ -120,7 +121,7 @@ export default function Navbar() {
 
             <button
               onClick={() => navigate("/login")}
-              className="w-full py-3 rounded-full bg-slate-800 text-white"
+              className="cursor-pointer w-full py-3 rounded-full bg-slate-800 text-white"
             >
               Sign In
             </button>

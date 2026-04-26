@@ -82,7 +82,7 @@ export default function AdminHospitalsPage() {
 
   return (
     <div className="px-4 py-4 sm:px-6 min-h-screen bg-slate-200">
-      
+
       {/* HEADER */}
       <header className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-6">
 
@@ -116,25 +116,24 @@ export default function AdminHospitalsPage() {
               <button
                 key={status}
                 onClick={() => setStatusFilter(status)}
-                className={`px-2 sm:px-3 py-2 text-xs sm:text-sm rounded-lg font-medium whitespace-nowrap ${
-                  statusFilter === status
+                className={`px-2 sm:px-3 py-2 text-xs sm:text-sm rounded-lg font-medium whitespace-nowrap ${statusFilter === status
                     ? "bg-slate-800 text-white"
                     : "bg-gray-100 text-gray-700"
-                }`}
+                  }`}
               >
                 {status.charAt(0).toUpperCase() + status.slice(1)}
               </button>
             ))}
             {/* LOGOUT */}
-          <button
-            onClick={handleLogout}
-            className="flex items-center justify-center gap-2 px-3 py-2 sm:px-4 text-sm bg-red-600 hover:bg-red-700 text-white rounded-lg shadow-sm w-full sm:w-auto"
-          >
-            <LogOut size={18} />
-            <span className="hidden sm:inline">Logout</span>
-          </button>
+            <button
+              onClick={handleLogout}
+              className="flex items-center justify-center gap-2 px-3 py-2 sm:px-4 text-sm bg-red-600 hover:bg-red-700 text-white rounded-lg shadow-sm w-full sm:w-auto"
+            >
+              <LogOut size={18} />
+              <span className="hidden sm:inline">Logout</span>
+            </button>
           </div>
-          
+
         </div>
       </header>
 
@@ -184,13 +183,37 @@ export default function AdminHospitalsPage() {
           modal.action === "accepted"
             ? "Confirm Accept"
             : modal.action === "rejected"
-            ? "Confirm Reject"
-            : "Request Changes"
+              ? "Confirm Reject"
+              : "Request Changes"
         }
         description="Please confirm your action."
         onClose={() => setModal({ open: false })}
-        onConfirm={(payload) => {
-          // your existing handler
+        onConfirm={async (payload) => {
+          try {
+            setActionLoading(true);
+
+            await api.patch(`/api/admin/requests/${payload._id}/status`, {
+              status: modal.action,
+              note: payload.note || "",
+            });
+
+            // update UI (remove or update status)
+            setRequests((prev) =>
+              prev.map((r) =>
+                r._id === payload._id
+                  ? { ...r, status: modal.action }
+                  : r
+              )
+            );
+
+            setModal({ open: false, action: null, payload: null });
+
+          } catch (err) {
+            console.error("Action failed:", err);
+            alert(err.response?.data?.error || "Action failed");
+          } finally {
+            setActionLoading(false);
+          }
         }}
         requireNote={modal.action === "changes_requested"}
         payload={modal.payload}

@@ -1,12 +1,49 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Calendar, Clock, User, Phone, CheckCircle, X } from "lucide-react";
+import api from "../../services/api";
 
 export default function UpcomingAppointmentsCard({
   appointments,
   onApprove,
   onCancel,
 }) {
-  console.log("Rendering UpcomingAppointmentsCard with appointments:", appointments);
+
+  console.log("Appointments in Card:", appointments);
+  const [patientsMap, setPatientsMap] = useState({});
+
+  // ✅ Fetch patients
+  useEffect(() => {
+    const fetchPatients = async () => {
+      try {
+        if (!appointments || appointments.length === 0) return;
+
+        // Extract unique patientIds
+        const uniqueIds = [
+          ...new Set(appointments.map((a) => a.patientId)),
+        ];
+
+        const results = await Promise.all(
+          uniqueIds.map((id) =>
+            api.get(`/api/patient/${id}`).then((res) => ({
+              id,
+              data: res.data,
+            }))
+          )
+        );
+
+        const map = {};
+        results.forEach((r) => {
+          map[r.id] = r.data;
+        });
+
+        setPatientsMap(map);
+      } catch (err) {
+        console.error("Error fetching patients:", err);
+      }
+    };
+
+    fetchPatients();
+  }, [appointments]);
 
   const formatTime = (time) => {
     return new Date(`2024-01-01 ${time}`).toLocaleTimeString("en-US", {
@@ -23,85 +60,92 @@ export default function UpcomingAppointmentsCard({
   };
 
   return (
-    <div className="bg-white rounded-2xl border-2 border-gray-300 p-6 shadow-md hover:shadow-lg hover:border-blue-300 transition-all duration-300">
-      <h2 className="text-lg font-bold text-gray-900 mb-4">
-        Upcoming Appointments
-      </h2>
+  <div className="bg-[#F0FDFA] rounded-2xl border border-[#D1FAE5] p-6 shadow-sm">
+    <h2 className="text-xl font-semibold text-[#0F766E] mb-5">
+      Upcoming Appointments
+    </h2>
 
-      <div className="space-y-3 max-h-96 overflow-y-auto">
-        {appointments && appointments.length > 0 ? (
-          appointments.map((appointment, index) => (
+    <div className="space-y-4 max-h-[420px] overflow-y-auto pr-1">
+      {appointments?.length > 0 ? (
+        appointments.map((appointment) => {
+          const patient = patientsMap[appointment.patientId] || {};
+          const patientInfo = patient.patientFromPatientModel || {};
+
+          return (
             <div
-              key={index}
-              className="bg-gradient-to-r from-blue-50 to-teal-50 rounded-lg p-4 border-2 border-blue-200 hover:border-blue-300 transition-all"
+              key={appointment._id}
+              className="bg-white rounded-xl p-4 border border-gray-200 shadow-sm hover:shadow-md transition duration-200"
             >
-              <div className="flex items-start justify-between mb-3">
-                <div className="flex-1">
-                  <p className="font-bold text-gray-900 text-sm">
-                    {appointment.patientName}
-                  </p>
-                  <p className="text-xs text-gray-600">
-                    ID: {appointment.appointmentId}
-                  </p>
+              {/* HEADER */}
+              <div className="flex justify-between items-start mb-3">
+                <div className="flex items-center gap-3">
+                  {/* Avatar */}
+                  <div className="w-10 h-10 rounded-full bg-[#1ABC9C] text-white flex items-center justify-center font-bold">
+                    {patientInfo.fullName
+                      ? patientInfo.fullName.charAt(0).toUpperCase()
+                      : "?"}
+                  </div>
+
+                  <div>
+                    <p className="font-semibold text-gray-900 text-sm">
+                      {patientInfo.fullName || "Loading..."}
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      ID: {appointment._id.slice(-6)}
+                    </p>
+                  </div>
                 </div>
-                <span className={`px-2 py-1 text-xs font-bold rounded-full ${
-                  appointment.status === "pending"
-                    ? "bg-yellow-100 text-yellow-700"
-                    : "bg-blue-100 text-blue-700"
-                }`}>
+
+                <span className="text-xs px-2 py-1 rounded-full bg-[#A8E6CF] text-[#0F766E] capitalize">
                   {appointment.status}
                 </span>
               </div>
 
-              <div className="grid grid-cols-2 gap-2 mb-3 text-xs">
+              {/* INFO GRID */}
+              <div className="grid grid-cols-2 gap-3 text-sm text-gray-600 mb-4">
                 <div className="flex items-center gap-2">
-                  <Calendar size={14} className="text-blue-600" />
-                  <span className="text-gray-700">
-                    {formatDate(appointment.date)}
-                  </span>
+                  <Calendar size={16} className="text-[#1ABC9C]" />
+                  {formatDate(appointment.appointmentDate)}
                 </div>
+
                 <div className="flex items-center gap-2">
-                  <Clock size={14} className="text-green-600" />
-                  <span className="text-gray-700">
-                    {formatTime(appointment.time)}
-                  </span>
+                  <Clock size={16} className="text-[#1ABC9C]" />
+                  {appointment.slot?.slot}
                 </div>
+
                 <div className="flex items-center gap-2">
-                  <User size={14} className="text-purple-600" />
-                  <span className="text-gray-700">{appointment.age} years</span>
+                  <User size={16} className="text-[#1ABC9C]" />
+                  {patientInfo.age || "-"} yrs
                 </div>
+
                 <div className="flex items-center gap-2">
-                  <Phone size={14} className="text-orange-600" />
-                  <span className="text-gray-700">{appointment.phone}</span>
+                  <Phone size={16} className="text-[#1ABC9C]" />
+                  {patientInfo.mobileNumber || "-"}
                 </div>
               </div>
 
-              {appointment.status === "pending" && (
-                <div className="flex gap-2">
+              {/* ACTIONS */}
+              {appointment.status === "active" && (
+                <div className="flex gap-3">
+
                   <button
-                    onClick={() => onApprove(appointment.id)}
-                    className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-green-100 hover:bg-green-200 text-green-700 font-semibold rounded-lg transition text-xs"
+                    onClick={() => onCancel(appointment._id)}
+                    className="flex-1 flex items-center justify-center gap-1 bg-red-600 hover:bg-red-700 text-white rounded-lg py-2 text-sm transition"
                   >
-                    <CheckCircle size={14} />
-                    Approve
-                  </button>
-                  <button
-                    onClick={() => onCancel(appointment.id)}
-                    className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-red-100 hover:bg-red-200 text-red-700 font-semibold rounded-lg transition text-xs"
-                  >
-                    <X size={14} />
+                    <X size={16} />
                     Reject
                   </button>
                 </div>
               )}
             </div>
-          ))
-        ) : (
-          <div className="bg-gray-50 rounded-lg p-6 text-center border-2 border-gray-200">
-            <p className="text-sm text-gray-600">No upcoming appointments</p>
-          </div>
-        )}
-      </div>
+          );
+        })
+      ) : (
+        <p className="text-center text-sm text-gray-500">
+          No upcoming appointments
+        </p>
+      )}
     </div>
-  );
+  </div>
+);
 }

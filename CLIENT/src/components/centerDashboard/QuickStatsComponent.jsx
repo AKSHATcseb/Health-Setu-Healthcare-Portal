@@ -2,46 +2,47 @@ import React from "react";
 import { Calendar, CheckCircle, Clock, AlertCircle, TrendingUp } from "lucide-react";
 
 export default function QuickStatsComponent({ appointments }) {
+  console.log("Received appointments in QuickStatsComponent:", appointments);
   const statItems = [
     {
       label: "Total Appointments",
-      value: stats.totalAppointments,
+      value: appointments.length,
       icon: Calendar,
       bgGradient: "from-blue-100 to-blue-50",
       borderColor: "border-blue-200",
       iconColor: "text-blue-600",
       textColor: "text-blue-900",
-      trend: stats.appointmentTrend,
+      // trend: stats.appointmentTrend,
     },
     {
       label: "Completed",
-      value: stats.completed,
+      value: appointments.filter((appt) => appt.status === "completed").length,
       icon: CheckCircle,
       bgGradient: "from-green-100 to-green-50",
       borderColor: "border-green-200",
       iconColor: "text-green-600",
       textColor: "text-green-900",
-      trend: stats.completedTrend,
+      // trend: stats.completedTrend,
     },
     {
       label: "Pending",
-      value: stats.pending,
+      value: appointments.filter((appt) => appt.status === "pending").length,
       icon: AlertCircle,
       bgGradient: "from-yellow-100 to-yellow-50",
       borderColor: "border-yellow-200",
       iconColor: "text-yellow-600",
       textColor: "text-yellow-900",
-      trend: stats.pendingTrend,
+      // trend: stats.pendingTrend,
     },
     {
       label: "Upcoming",
-      value: stats.upcoming,
+      value: appointments.filter((appt) => appt.status === "upcoming").length,
       icon: Clock,
       bgGradient: "from-cyan-100 to-cyan-50",
       borderColor: "border-cyan-200",
       iconColor: "text-cyan-600",
       textColor: "text-cyan-900",
-      trend: stats.upcomingTrend,
+      // trend: stats.upcomingTrend,
     },
   ];
 

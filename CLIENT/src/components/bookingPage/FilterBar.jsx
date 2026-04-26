@@ -67,16 +67,16 @@ export default function FilterBar({
   };
 
   const handleDateChange = (e) => {
-  const val = e.target.value;
+    const val = e.target.value;
 
-  // console.log("📅 Selected Date:", val); 
+    // console.log("📅 Selected Date:", val); 
 
-  setSelectedDate?.(val);
+    setSelectedDate?.(val);
 
-  if (!val) setDateError("Please select a date.");
-  else if (!isDateValid(val)) setDateError("Please select a date within the next 7 days.");
-  else setDateError("");
-};
+    if (!val) setDateError("Please select a date.");
+    else if (!isDateValid(val)) setDateError("Please select a date within the next 7 days.");
+    else setDateError("");
+  };
 
   const handleApply = () => {
     if (!selectedDate || !isDateValid(selectedDate)) {
@@ -105,6 +105,8 @@ export default function FilterBar({
     // root has no bg class so page background is preserved
     <div className="w-full px-4 py-5 bg-slate-200">
       <div className="max-w-7xl mx-auto space-y-4">
+
+        <div></div>
         {/* Row 1: Date only */}
         <div>
           <label htmlFor="appointment-date" className="block text-sm font-semibold text-gray-900 mb-2 flex items-center gap-2">
@@ -120,9 +122,8 @@ export default function FilterBar({
             onChange={handleDateChange}
             min={minDate}
             max={maxDate}
-            className={`w-full md:max-w-xs px-3 py-2 rounded-lg border ${
-              dateError ? "border-red-500" : "border-gray-300"
-            } bg-white/90 text-gray-900 focus:outline-none focus:ring-2 focus:ring-cyan-300`}
+            className={`w-full md:max-w-xs px-3 py-2 rounded-lg border ${dateError ? "border-red-500" : "border-gray-300"
+              } bg-white/90 text-gray-900 focus:outline-none focus:ring-2 focus:ring-cyan-300`}
             aria-required="true"
             aria-invalid={!!dateError}
           />
@@ -142,16 +143,16 @@ export default function FilterBar({
             />
             <span className="text-sm font-medium text-gray-900">Enable Filters</span>
           </label>
-    </div>
+        </div>
         {/* Row 3: Filters (cards/controls styled as foreground) */}
         <fieldset
-          className={`grid grid-cols-1 md:grid-cols-4 gap-4 p-4 rounded-lg ${filtersEnabled ? "bg-white/95" : "bg-white/70 opacity-60"}`}
+          className={`grid grid-cols-1 md:grid-cols-3 gap-4 p-4 rounded-lg ${filtersEnabled ? "bg-white/95" : "bg-white/70 opacity-60"}`}
           aria-disabled={!filtersEnabled}
         >
           <legend className="sr-only">Filters</legend>
 
           {/* Distance */}
-          <div className="flex flex-col">
+          <div className="mr-10 flex flex-col">
             <label className="text-sm font-semibold text-gray-900 mb-2 flex items-center gap-2">
               <MapPin size={16} className="text-cyan-600" />
               Max Distance
@@ -160,7 +161,7 @@ export default function FilterBar({
               <input
                 type="range"
                 min="0"
-                max="2000"
+                max="10000"
                 value={distanceFilter?.max ?? 0}
                 onChange={(e) => setDistanceFilter?.({ ...distanceFilter, max: parseInt(e.target.value, 10) })}
                 disabled={!filtersEnabled}
@@ -181,7 +182,7 @@ export default function FilterBar({
               <input
                 type="range"
                 min="0"
-                max="5000"
+                max="150000"
                 value={priceFilter?.max ?? 0}
                 onChange={(e) => setPriceFilter?.({ ...priceFilter, max: parseInt(e.target.value, 10) })}
                 disabled={!filtersEnabled}
@@ -193,7 +194,7 @@ export default function FilterBar({
           </div>
 
           {/* Rating */}
-          <div className="flex flex-col">
+          {/* <div className="flex flex-col">
             <label className="text-sm font-semibold text-gray-900 mb-2 flex items-center gap-2">
               <Star size={16} className="text-slate-800" />
               Minimum Rating
@@ -216,10 +217,10 @@ export default function FilterBar({
                 );
               })}
             </div>
-          </div>
+          </div> */}
 
           {/* Controls */}
-          <div className="flex flex-col justify-between">
+          <div className="flex flex-col justify-between ">
             <div className="flex gap-2 justify-end mt-3">
               <button
                 onClick={handleReset}
@@ -228,15 +229,17 @@ export default function FilterBar({
               >
                 Reset
               </button>
-              <button
+              {/* <button
                 onClick={handleApply}
                 disabled={!isDateValid(selectedDate) || applying}
                 className="px-4 py-2 rounded-md bg-slate-800 text-gray-200 font-semibold disabled:opacity-60"
               >
                 {applying ? "Applying..." : filtersEnabled ? "Apply Filters" : "Apply Date"}
-              </button>
+              </button> */}
             </div>
           </div>
+
+
         </fieldset>
       </div>
     </div>

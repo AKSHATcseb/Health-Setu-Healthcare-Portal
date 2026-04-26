@@ -575,6 +575,18 @@ const getAppointmentsForHospital = async (req, res) => {
   }
 };
 
+const updateAppointmentStatus = async (req, res) => {
+  const { status } = req.body;
+
+  const appointment = await Appointment.findByIdAndUpdate(
+    req.params.id,
+    { status },
+    { new: true }
+  );
+
+  res.json(appointment);
+};
+
 router.get("/details", requireAuth, getHospitalDetails);
 router.post("/details", requireAuth, addHospitalDetails);
 router.get("/profile", requireAuth, getHospitalDetailsForDashboard);
@@ -582,5 +594,6 @@ router.post("/request-add", requireAuth, RequestToAddHospitalDetails);
 router.get("/fetch/:id", requireAuth, fetchHospitalById);
 router.get("/:id", requireAuth, getHospitalById);
 router.get("/appointments/:id", requireAuth, getAppointmentsForHospital);
+router.patch("/appointments/:id/status", updateAppointmentStatus);
 
 module.exports = router;

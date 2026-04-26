@@ -2,6 +2,8 @@ const express = require("express");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/Registeration");
+const RequestedHospital = require("../models/HospitalRequest");
+const Hospital = require("../models/HospitalDetails");
 const EmailOtp = require("../models/EmailOTP");
 const { sendOtpEmail } = require("../services/email.service");
 
@@ -169,6 +171,15 @@ router.post("/login", async (req, res) => {
       return res.status(401).json({ message: "Invalid email or password." });
     }
 
+    const requestedHospital = await RequestedHospital.findOne({ email: normalizedEmail });
+    const hospital = await Hospital.findOne({ email: normalizedEmail });
+
+    if (requestedHospital && !hospital) {
+      return res.status(403).json({
+        message: "Your request is under process. Please wait for approval."
+      });
+    }
+
     const ok = await bcrypt.compare(password, user.passwordHash);
     if (!ok) {
       return res.status(401).json({ message: "Invalid email or password." });
@@ -184,6 +195,8 @@ router.post("/login", async (req, res) => {
       process.env.JWT_SECRET,
       { expiresIn: "7d" }
     );
+
+
 
     return res.json({
       message: "Login successful",
