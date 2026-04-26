@@ -1,0 +1,59 @@
+import { useState } from 'react'
+import './App.css'
+import { Routes, Route } from 'react-router-dom'
+import ChatWidget from './components/chatbot/ChatWidget'
+
+
+import Home from './pages/Public/LandingPage'
+import LoginForm from './components/loginSignup/LoginForm'
+import Register from './components/loginSignup/Register'
+import PatientDetailsForm from './pages/Patient/CompleteProfile'
+import PatientDashboard from './pages/Patient/PatientDashboard'
+import BookingPage from './pages/Patient/BookingPage'
+import AppointmentConfirmation from './pages/Patient/AppointmentConfirmation'
+import MyAppointments from './pages/Patient/MyAppointments'
+import PatientProfile from './pages/Patient/PatientProfile'
+import CenterDetailsForm from './pages/Center/CenterDetailsForm'
+import HospitalRegistrationSuccess from './pages/Center/HospitalRegistraionSuccess'
+import CenterDashboard from './pages/Center/CenterDashboard'
+import EditProfile from './pages/Patient/EditProfile'
+import CenterUpdateDetails from './pages/Center/CenterUpdateDetails'
+import CompleteCenterDetail from './pages/Patient/CompleteCenterDetail'
+import AdminPage from './pages/Admin/AdminPage'
+import ReportAnalysis from './pages/Patient/ReportAnalysis'
+
+// import { Toaster } from 'react-hot-toast'
+
+
+function App() {
+
+  return (
+    <>
+      <Routes>
+        <Route path='/' element={<Home />} />
+        <Route path="/login" element={<LoginForm />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/patient/detailsForm" element={<PatientDetailsForm />} />
+        <Route path='/patient/dashboard/:id' element={<PatientDashboard />} />
+        <Route path='/patient/:id/bookappointment' element={<BookingPage />} />
+        <Route path="/patient/:patientId/confirmappointment/:id" element={<AppointmentConfirmation />} />
+        <Route path='/patient/appointments/:patientId' element={<MyAppointments />} />
+        <Route path='/patient/profile' element={<PatientProfile />} />
+        <Route path="/center/detailsForm" element={<CenterDetailsForm />} />
+        <Route path="/center/registration-success" element={<HospitalRegistrationSuccess />} />
+        <Route path='/center/dashboard/:id' element={<CenterDashboard />} />
+        <Route path='/patient/profile/edit' element={<EditProfile />} />
+        <Route path='/center/update' element={<CenterUpdateDetails />} />
+        <Route path='/center/:cid' element={<CompleteCenterDetail />} />
+        <Route path='/admin/dashboard/:id' element={<AdminPage />} />
+        <Route path='/patient/:id/reports' element={<ReportAnalysis />} />
+        
+      </Routes>
+
+      {/* Global floating chatbot */}
+      <ChatWidget />
+    </>
+  )
+}
+
+export default App
