@@ -1,62 +1,79 @@
 const cron = require("node-cron");
 const mongoose = require("mongoose");
 
-/* helper functions */
-const getToday = () => new Date().toISOString().split("T")[0];
+const formatDate = (d) => d.formatLocalDate(new Date());
 
-const getDateAfterDays = (days) => {
-  const d = new Date();
-  d.setDate(d.getDate() + days);
-  return d.toISOString().split("T")[0];
-};
-
-const generateSlotsForDate = (dateStr) => {
-  const timings = ["08:00", "12:00", "16:00"];
-
-  return timings.map((time) => ({
+const generateSlotsForDate = (dateStr, timings) => {
+  return timings.map((t) => ({
     date: dateStr,
-    startTime: time,
+    startTime: t.start,
+    endTime: t.end,
     availability_status: "available",
   }));
 };
 
-/* CRON JOB - runs daily at midnight server time */
-cron.schedule("0 0 * * *", async () => {
-  console.log("Running daily slot update...");
+function startSlotCron() {
+  console.log("✅ slotCron initialized");
 
-  // Resolve models lazily so requiring this file doesn't force model registration order
-  let Machine;
-  try {
-    Machine = mongoose.model("Machine");
-  } catch (err) {
-    // Machine model not registered yet (or Hospital missing in Machine file) — skip run
-    console.warn("[slotCron] Machine model not registered yet. Ensure models are required after DB connect.");
-    return;
-  }
+  cron.schedule("0 0 * * *", async () => {
+    console.log("🌙 Midnight cron running:", new Date());
 
-  try {
-    const today = getToday();
-    const newDate = getDateAfterDays(7);
+    let Machine, Hospital;
 
-    const machines = await Machine.find();
-
-    for (const machine of machines) {
-      /* Remove past dates */
-      machine.slots = (machine.slots || []).filter((slot) => slot.date >= today);
-
-      /* Add new date (today + 7) if missing */
-      const exists = machine.slots.some((slot) => slot.date === newDate);
-
-      if (!exists) {
-        const newSlots = generateSlotsForDate(newDate);
-        machine.slots.push(...newSlots);
-      }
-
-      await machine.save();
+    try {
+      Machine = mongoose.model("Machine");
+      Hospital = mongoose.model("Hospital");
+    } catch (err) {
+      console.warn("Models not ready");
+      return;
     }
 
-    console.log("Slots updated successfully");
-  } catch (err) {
-    console.error("[slotCron] Error updating slots:", err);
-  }
-});
+    try {
+      const today = new Date();
+
+      const machines = await Machine.find();
+
+      for (const machine of machines) {
+
+        // 🔥 Remove past slots
+        machine.slots = (machine.slots || []).filter(
+          (slot) => new Date(slot.date) >= today
+        );
+
+        const hospital = await Hospital.findById(machine.hospitalId);
+        if (!hospital) continue;
+
+        const timings = [
+          ...(hospital.slots?.slots4h || []),
+          ...(hospital.slots?.slots6h || []),
+        ];
+
+        if (!timings.length) continue;
+
+        // 🔥 Ensure next 7 days ALWAYS exist
+        for (let i = 0; i < 7; i++) {
+          const d = new Date();
+          d.setDate(today.getDate() + i);
+          const dateStr = formatDate(d);
+
+          const exists = machine.slots.some((s) => s.date === dateStr);
+
+          if (!exists) {
+            const newSlots = generateSlotsForDate(dateStr, timings);
+            machine.slots.push(...newSlots);
+          }
+        }
+
+        await machine.save();
+      }
+
+      console.log("✅ Slots updated for next 7 days");
+    } catch (err) {
+      console.error("[slotCron] Error:", err);
+    }
+  }, {
+    timezone: "Asia/Kolkata"
+  });
+}
+
+module.exports = { startSlotCron };

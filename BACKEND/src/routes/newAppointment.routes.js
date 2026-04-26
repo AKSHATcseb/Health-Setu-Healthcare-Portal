@@ -93,10 +93,17 @@ const confirmAppointment = async (req, res) => {
     const startMinutes = timeToMinutes(startTimeStr);
     const endMinutes = startMinutes + Number(durationHours) * 60;
 
+    function formatLocalDate(d) {
+      return d.toLocaleDateString("en-CA", {
+        timeZone: "Asia/Kolkata",
+      });
+    }
+
     // appointmentDate stored as YYYY-MM-DD string in Machine slots, ensure consistent query key
     const formatDate = (d) => {
       const date = new Date(d);
-      return date.toISOString().split("T")[0];
+      // return date.formatLocalDate(new Date());
+      return formatLocalDate(date);
     };
 
     const appointmentDateStr = formatDate(appointmentDate);

@@ -29,7 +29,7 @@ export default function HospitalCard({ hospital, pId, selectedDate }) {
 };
 
   return (
-    <div className="bg-white rounded-2xl shadow-md hover:shadow-xl transition p-5 border border-gray-200 w-full">
+    <div className="bg-white rounded-2xl shadow-md hover:shadow-xl transition p-5 border border-gray-200 w-full mb-2">
 
       {/* MAIN GRID */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
