@@ -1,0 +1,26 @@
+BACKEND/serviceAccountKey.json
+
+# OS/editor noise
+.DS_Store
+**/.DS_Store
+.vscode/
+
+# Local dependencies and environments
+node_modules/
+env/
+.venv/
+venv/
+
+# Generated frontend builds
+dist/
+CLIENT/dist/
+
+# Local planning scratch files
+CHECKLIST
+SCHEDULE
+newwwww.jsx
+
+# Added by code-review-graph
+.code-review-graph/
+/.history
+/.vscode
