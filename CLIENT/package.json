@@ -9,7 +9,7 @@
     "lint": "eslint .",
     "preview": "vite preview"
   },
-  "homepage": ".",
+  "homepage": "https://AKSHATcseb.github.io/Health-Setu-Healthcare-Portal/",
   "dependencies": {
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
@@ -18,7 +18,7 @@
     "axios": "^1.13.2",
     "cors": "^2.8.6",
     "firebase": "^12.8.0",
-    "framer-motion": "^12.27.5",
+    "framer-motion": "^12.27.5", 
     "lucide-react": "^0.563.0",
     "qrcode.react": "^4.2.0",
     "react": "^19.2.0",
